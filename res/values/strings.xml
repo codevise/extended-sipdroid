@@ -301,4 +301,11 @@
 <string name="help_speakerphone">Press and hold volume buttons to force talk</string>
 <string name="menu_create">New PBX linked to my Google Voice</string>
 
+
+
+<string name="browse_button">select file</string>
+<string name="play_button">play file</string>
+<string name="open_title">choose file to open</string>
+<string name="open_button">okay</string>
+<string name="no_filemanager_installed">No file manager found. Install e. g. &quot;OI File Manager&quot; from Market.</string>
 </resources>

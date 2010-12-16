@@ -20,7 +20,20 @@ package org.sipdroid.sipua.ui;
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+
+import javazoom.jl.decoder.Bitstream;
+import javazoom.jl.decoder.BitstreamException;
+import javazoom.jl.decoder.Decoder;
+import javazoom.jl.decoder.DecoderException;
+import javazoom.jl.decoder.Header;
+import javazoom.jl.decoder.SampleBuffer;
 
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
@@ -31,16 +44,23 @@ import org.sipdroid.sipua.phone.CallCard;
 import org.sipdroid.sipua.phone.Phone;
 import org.sipdroid.sipua.phone.SlidingCardManager;
 
+import de.codevise.intents.FileManagerIntents;
+
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -53,13 +73,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class InCallScreen extends CallScreen implements View.OnClickListener, SensorEventListener {
 
+	protected static final int REQUEST_CODE_PICK_FILE_OR_DIRECTORY = 1;
 	final int MSG_ANSWER = 1;
 	final int MSG_ANSWER_SPEAKER = 2;
 	final int MSG_BACK = 3;
@@ -275,6 +298,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	TextView mStats;
 	TextView mCodec;
 	
+	protected EditText mEditText;
+	
     public void initInCallScreen() {
         mInCallPanel = (ViewGroup) findViewById(R.id.inCallPanel);
         mMainFrame = (ViewGroup) findViewById(R.id.mainFrame);
@@ -336,6 +361,23 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
             button = findViewById(viewId);
             button.setOnClickListener(this);
         }
+        
+        mEditText = (EditText) findViewById(R.id.file_path);
+        mEditText.setText("/mnt/sdcard/download/preview.mp3");
+
+        Button btn = (Button) findViewById(R.id.browse_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				openFile();
+			}
+	    });
+
+	    btn = (Button) findViewById(R.id.play_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				playMP3();
+			}
+	    });
     }
     
 	Thread t;
@@ -508,5 +550,115 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 		float distance = event.values[0];
         boolean active = (distance >= 0.0 && distance < PROXIMITY_THRESHOLD && distance < event.sensor.getMaximumRange());
         setScreenBacklight((float) (active?0.1:-1));
+	}
+	
+    private void openFile() {
+		String fileName = mEditText.getText().toString();
+		
+		Intent intent = new Intent(FileManagerIntents.ACTION_PICK_FILE);
+		
+		// Construct URI from file name.
+		intent.setData(Uri.parse("file://" + fileName));
+		
+		// Set fancy title and button
+		intent.putExtra(FileManagerIntents.EXTRA_TITLE, getString(R.string.open_title));
+		intent.putExtra(FileManagerIntents.EXTRA_BUTTON_TEXT, getString(R.string.open_button));
+		
+		try { // try to open file manager activity
+			startActivityForResult(intent, REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
+		} catch (ActivityNotFoundException e) {
+			// No compatible file manager was found.
+			Toast.makeText(this, R.string.no_filemanager_installed, Toast.LENGTH_SHORT).show();
+		}
+	}
+    
+	void playMP3 () {
+		AudioTrack track;
+		byte[] pcm = null;
+
+	    String file = mEditText.getText().toString();
+
+		int minSize = AudioTrack.getMinBufferSize( 44100, AudioFormat.CHANNEL_CONFIGURATION_STEREO,
+													AudioFormat.ENCODING_PCM_16BIT );
+	    track = new AudioTrack( AudioManager.STREAM_MUSIC, 44100, 
+                                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT, 
+                                minSize, AudioTrack.MODE_STREAM);
+	    track.play();
+
+    	try {
+			pcm = decode(file, 0, 10000);
+		} catch (IOException e) {}
+		
+		track.write(pcm, 0, pcm.length);
+	}
+	
+	public static byte[] decode(String path, int startMs, int maxMs)
+			throws IOException {
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
+
+		float totalMs = 0;
+		boolean seeking = true;
+		byte[] retval = null;
+
+		File file = new File(path);
+		InputStream inputStream = new BufferedInputStream(new FileInputStream(
+				file), 8 * 1024);
+
+		try {
+			Bitstream bitstream = new Bitstream(inputStream);
+			Decoder decoder = new Decoder();
+
+			boolean done = false;
+			while (!done) {
+				Header frameHeader = bitstream.readFrame();
+				if (frameHeader == null) {
+					done = true;
+				} else {
+					totalMs += frameHeader.ms_per_frame();
+
+					if (totalMs >= startMs) {
+						seeking = false;
+					}
+
+					if (!seeking) {
+						SampleBuffer output = (SampleBuffer) decoder
+								.decodeFrame(frameHeader, bitstream);
+
+						if (output.getSampleFrequency() != 44100
+								|| output.getChannelCount() != 2) {
+							// throw new
+							// com.mindtherobot.libs.mpg.DecoderException(
+							// "mono or non-44100 MP3 not supported");
+						}
+
+						short[] pcm = output.getBuffer();
+						for (short s : pcm) {
+							outStream.write(s & 0xff);
+							outStream.write((s >> 8) & 0xff);
+						}
+					}
+
+					if (totalMs >= (startMs + maxMs)) {
+						done = true;
+					}
+				}
+				bitstream.closeFrame();
+			}
+			if (inputStream != null) {
+				inputStream.close();
+			}
+			retval = outStream.toByteArray();
+		} catch (BitstreamException e) {
+		} catch (DecoderException e) {
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Log.w(TAG, “Failed to close stream”, e);
+				}
+			}
+		}
+		return retval;
 	}
 }

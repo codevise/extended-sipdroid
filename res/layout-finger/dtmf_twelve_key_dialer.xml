@@ -27,7 +27,16 @@
     <!-- Include the layout for the dtmf display -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="76dip"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dip">
+
+        <include layout="@layout/file_controls" />
+        
+    </LinearLayout>
+        
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="0dip">
         
         <include layout="@layout/dtmf_display"/>

@@ -20,20 +20,7 @@ package org.sipdroid.sipua.ui;
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-
-import javazoom.jl.decoder.Bitstream;
-import javazoom.jl.decoder.BitstreamException;
-import javazoom.jl.decoder.Decoder;
-import javazoom.jl.decoder.DecoderException;
-import javazoom.jl.decoder.Header;
-import javazoom.jl.decoder.SampleBuffer;
 
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
@@ -43,8 +30,6 @@ import org.sipdroid.sipua.phone.Call;
 import org.sipdroid.sipua.phone.CallCard;
 import org.sipdroid.sipua.phone.Phone;
 import org.sipdroid.sipua.phone.SlidingCardManager;
-
-import de.codevise.intents.FileManagerIntents;
 
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
@@ -79,6 +64,7 @@ import android.widget.RelativeLayout;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.Toast;
+import de.codevise.intents.FileManagerIntents;
 
 public class InCallScreen extends CallScreen implements View.OnClickListener, SensorEventListener {
 
@@ -585,80 +571,12 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
                                 minSize, AudioTrack.MODE_STREAM);
 	    track.play();
 
-    	try {
+/*    	try {
 			pcm = decode(file, 0, 10000);
 		} catch (IOException e) {}
-		
+*/		
 		track.write(pcm, 0, pcm.length);
 	}
 	
-	public static byte[] decode(String path, int startMs, int maxMs)
-			throws IOException {
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
 
-		float totalMs = 0;
-		boolean seeking = true;
-		byte[] retval = null;
-
-		File file = new File(path);
-		InputStream inputStream = new BufferedInputStream(new FileInputStream(
-				file), 8 * 1024);
-
-		try {
-			Bitstream bitstream = new Bitstream(inputStream);
-			Decoder decoder = new Decoder();
-
-			boolean done = false;
-			while (!done) {
-				Header frameHeader = bitstream.readFrame();
-				if (frameHeader == null) {
-					done = true;
-				} else {
-					totalMs += frameHeader.ms_per_frame();
-
-					if (totalMs >= startMs) {
-						seeking = false;
-					}
-
-					if (!seeking) {
-						SampleBuffer output = (SampleBuffer) decoder
-								.decodeFrame(frameHeader, bitstream);
-
-						if (output.getSampleFrequency() != 44100
-								|| output.getChannelCount() != 2) {
-							// throw new
-							// com.mindtherobot.libs.mpg.DecoderException(
-							// "mono or non-44100 MP3 not supported");
-						}
-
-						short[] pcm = output.getBuffer();
-						for (short s : pcm) {
-							outStream.write(s & 0xff);
-							outStream.write((s >> 8) & 0xff);
-						}
-					}
-
-					if (totalMs >= (startMs + maxMs)) {
-						done = true;
-					}
-				}
-				bitstream.closeFrame();
-			}
-			if (inputStream != null) {
-				inputStream.close();
-			}
-			retval = outStream.toByteArray();
-		} catch (BitstreamException e) {
-		} catch (DecoderException e) {
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// Log.w(TAG, “Failed to close stream”, e);
-				}
-			}
-		}
-		return retval;
-	}
 }

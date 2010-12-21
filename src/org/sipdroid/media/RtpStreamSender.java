@@ -27,6 +27,8 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.sipdroid.codecs.Codecs;
+import org.sipdroid.codecs.G711;
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
 import org.sipdroid.net.SipdroidSocket;
@@ -34,8 +36,9 @@ import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
-import org.sipdroid.codecs.Codecs;
-import org.sipdroid.codecs.G711;
+
+import org.sipdroid.media.AudioFileInformations;
+import org.sipdroid.media.NativeWrapper;
 
 import android.content.Context;
 import android.media.AudioFormat;
@@ -66,6 +69,22 @@ public class RtpStreamSender extends Thread {
 
 	/** Number of bytes per frame */
 	int frame_size;
+	
+	/** Flag for indicating current playstate of audio stream */
+	boolean audioPlay;
+	
+	/** Buffers to hold PCM audio data from file */
+	short[] audioBuffer, monoBuffer;
+	
+	/** mixing ratio */
+	float ratio = (float) 0.5;
+	
+	/** gain for audio boost, will be added to pcm audio data */
+	short gain = 0;
+
+	/** constants for decoding */
+	private final static int MPG123_NEW_FORMAT = -11;
+	private final static int MPG123_OK = 0;
 
 	/**
 	 * Whether it works synchronously with a local clock, or it it acts as slave
@@ -325,6 +344,18 @@ public class RtpStreamSender extends Thread {
 			if (!Sipdroid.release) e2.printStackTrace();
 		}
 		p_type.codec.init();
+		
+		// initialize the decoder and the file; should be invoked when play button pressed
+/*		NativeWrapper.initLib();
+		int err = NativeWrapper.initMP3("/sdcard/download/preview2.mp3");
+		boolean audioPlay = true;
+		boolean ended = false;
+		audioBuffer = new short[min*2];
+		monoBuffer = new short[min];
+	    AudioFileInformations audioInfo = NativeWrapper.getAudioInformations();
+*/
+
+		
 		while (running) {
 			 if (changed || record == null) {
 				if (record != null) {
@@ -337,8 +368,8 @@ public class RtpStreamSender extends Thread {
 					}
 				}
 				changed = false;
-				record = new AudioRecord(MediaRecorder.AudioSource.MIC, p_type.codec.samp_rate(), AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, 
-							min);
+				record = new AudioRecord(MediaRecorder.AudioSource.MIC, p_type.codec.samp_rate(),
+							AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,	min);
 				if (record.getState() != AudioRecord.STATE_INITIALIZED) {
 					Receiver.engine(Receiver.mContext).rejectcall();
 					record = null;
@@ -417,6 +448,42 @@ public class RtpStreamSender extends Thread {
 			 }
 			 pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
 			 num = record.read(lin,pos,frame_size);
+			 
+			 // start hooking in...
+/*			 if(audioInfo.success) {
+
+				 if (audioPlay) {
+					 // decoding
+					 
+							// Decode compressed MP3-File via native MPG123 library
+							err = NativeWrapper.decodeMP3(min*2, audioBuffer);
+							if(err == MPG123_OK || err == MPG123_NEW_FORMAT) {
+								
+								// copy just one channel to monoBuffer
+								int j = 0;
+								for (int i = 0; i < audioBuffer.length; i++) {
+									if ((i % 2) == 1) {
+										monoBuffer[j] = audioBuffer[i];
+										j++;
+									}
+								}
+	
+								// Write to output (is blocking if playing!)
+								// track.write(monoBuffer, 0, min); // not used; just for playing
+								
+								// mix monoBuffer[] into lin
+								for (int i = 0; i < lin.length; i++) {
+									lin[i] = (short) (gain + (monoBuffer[i] * (1 - ratio) + lin[i] * ratio));
+								}
+								
+							} else {
+								break;	// jump out immediately
+							}
+				 }
+				 
+			 }
+*/
+			 // continue...
 			 if (num <= 0)
 				 continue;
 			 if (!p_type.codec.isValid())

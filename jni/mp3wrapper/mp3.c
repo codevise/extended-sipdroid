@@ -38,7 +38,7 @@ JNIEXPORT jboolean JNICALL Java_org_sipdroid_media_NativeWrapper_ninitLib(JNIEnv
 	 * Setup needed format options
 	 */
 	mpg123_format_none(mh);
-	if ((err = mpg123_format(mh, 44100, MPG123_STEREO, MPG123_ENC_SIGNED_16)) != MPG123_OK) 
+	if ((err = mpg123_format(mh, 8000, MPG123_MONO, MPG123_ENC_SIGNED_16)) != MPG123_OK) 
 		return JNI_FALSE;
 
 	mpg123_volume();

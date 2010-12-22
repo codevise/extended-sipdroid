@@ -227,4 +227,5 @@
 <string name="menu_playFile">Datei abspielen</string>
 <string name="browse_button">Datei wählen</string>
 <string name="play_button">Datei abspielen</string>
+<string name="stop_button">Stop</string>
 </resources>

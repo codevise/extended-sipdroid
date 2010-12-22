@@ -349,7 +349,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         }
         
         mEditText = (EditText) findViewById(R.id.file_path);
-        mEditText.setText("/mnt/sdcard/download/preview.mp3");
+        mEditText.setText("/mnt/sdcard/download/test.mp3");
 
         Button btn = (Button) findViewById(R.id.browse_button);
 	    btn.setOnClickListener(new View.OnClickListener() {
@@ -362,6 +362,13 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				playMP3();
+			}
+	    });
+	    
+	    btn = (Button) findViewById(R.id.stop_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				stopMP3();
 			}
 	    });
     }
@@ -559,24 +566,33 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	}
     
 	void playMP3 () {
-		AudioTrack track;
-		byte[] pcm = null;
 
 	    String file = mEditText.getText().toString();
-
-		int minSize = AudioTrack.getMinBufferSize( 44100, AudioFormat.CHANNEL_CONFIGURATION_STEREO,
-													AudioFormat.ENCODING_PCM_16BIT );
-	    track = new AudioTrack( AudioManager.STREAM_MUSIC, 44100, 
-                                AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT, 
-                                minSize, AudioTrack.MODE_STREAM);
-	    track.play();
-
-/*    	try {
-			pcm = decode(file, 0, 10000);
-		} catch (IOException e) {}
-*/		
-		track.write(pcm, 0, pcm.length);
+	    RtpStreamSender.initFile(file);
+	    RtpStreamSender.audioPlay = true;
 	}
 	
+	void stopMP3 () {
+		RtpStreamSender.audioPlay = false;
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//		super.onActivityResult(requestCode, resultCode, data);
 
+		if (requestCode == REQUEST_CODE_PICK_FILE_OR_DIRECTORY) {
+			if (resultCode == RESULT_OK && data != null) {
+				// obtain the filename
+				String filename = data.getDataString();
+				if (filename != null) {
+					// Get rid of URI prefix:
+					if (filename.startsWith("file://")) {
+						filename = filename.substring(7);
+					}
+					mEditText.setText(filename);
+				}				
+				
+			}
+		}
+	}
 }

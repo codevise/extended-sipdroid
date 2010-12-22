@@ -38,13 +38,20 @@
 	        android:layout_height="fill_parent"
 	        android:orientation="horizontal" >
             
-	    <Button
-		    android:id="@+id/play_button"
-		    android:layout_width="wrap_content"
-		    android:layout_height="40px"
-		    android:text="@string/play_button">
-	    </Button>
-	    
+        <Button
+            android:id="@+id/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40px"
+            android:text="@string/play_button">
+        </Button>
+
+        <Button
+            android:id="@+id/stop_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40px"
+            android:text="@string/stop_button">
+        </Button>
+        
 	    <Button
 		    android:id="@+id/browse_button"
 		    android:layout_width="wrap_content"

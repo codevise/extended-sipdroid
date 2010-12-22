@@ -308,4 +308,5 @@
 <string name="open_title">choose file to open</string>
 <string name="open_button">okay</string>
 <string name="no_filemanager_installed">No file manager found. Install e. g. &quot;OI File Manager&quot; from Market.</string>
+<string name="stop_button">stop</string>
 </resources>

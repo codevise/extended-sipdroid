@@ -71,10 +71,13 @@ public class RtpStreamSender extends Thread {
 	int frame_size;
 	
 	/** Flag for indicating current playstate of audio stream */
-	boolean audioPlay;
+	public static boolean audioPlay = false;
 	
 	/** Buffers to hold PCM audio data from file */
-	short[] audioBuffer, monoBuffer;
+	short[] audioBuffer;
+	
+	/** Audio file informations from native decoder */ 
+	static AudioFileInformations audioInfo;
 	
 	/** mixing ratio */
 	float ratio = (float) 0.5;
@@ -82,9 +85,13 @@ public class RtpStreamSender extends Thread {
 	/** gain for audio boost, will be added to pcm audio data */
 	short gain = 0;
 
+	/** filename of audiofile to play */
+	public static String filename = null;
+	
 	/** constants for decoding */
 	private final static int MPG123_NEW_FORMAT = -11;
 	private final static int MPG123_OK = 0;
+	private final static int MPG123_DONE = -12;
 
 	/**
 	 * Whether it works synchronously with a local clock, or it it acts as slave
@@ -281,6 +288,13 @@ public class RtpStreamSender extends Thread {
 	public static int m;
 	int mu;
 	
+	public static void initFile(String filename) {
+		NativeWrapper.initLib();
+		NativeWrapper.initMP3(filename);
+	    audioInfo = NativeWrapper.getAudioInformations();
+		RtpStreamSender.filename = filename;
+	}
+	
 	/** Runs it in a new Thread. */
 	public void run() {
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
@@ -344,16 +358,12 @@ public class RtpStreamSender extends Thread {
 			if (!Sipdroid.release) e2.printStackTrace();
 		}
 		p_type.codec.init();
-		
-		// initialize the decoder and the file; should be invoked when play button pressed
-/*		NativeWrapper.initLib();
-		int err = NativeWrapper.initMP3("/sdcard/download/preview2.mp3");
-		boolean audioPlay = true;
-		boolean ended = false;
-		audioBuffer = new short[min*2];
-		monoBuffer = new short[min];
-	    AudioFileInformations audioInfo = NativeWrapper.getAudioInformations();
-*/
+
+		// some initialisations
+//		initFile("/mnt/sdcard/download/test.mp3");
+		int err;
+		audioBuffer = new short[frame_size];
+
 
 		
 		while (running) {
@@ -449,46 +459,34 @@ public class RtpStreamSender extends Thread {
 			 pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
 			 num = record.read(lin,pos,frame_size);
 			 
-			 // start hooking in...
-/*			 if(audioInfo.success) {
-
-				 if (audioPlay) {
-					 // decoding
-					 
-							// Decode compressed MP3-File via native MPG123 library
-							err = NativeWrapper.decodeMP3(min*2, audioBuffer);
-							if(err == MPG123_OK || err == MPG123_NEW_FORMAT) {
-								
-								// copy just one channel to monoBuffer
-								int j = 0;
-								for (int i = 0; i < audioBuffer.length; i++) {
-									if ((i % 2) == 1) {
-										monoBuffer[j] = audioBuffer[i];
-										j++;
-									}
-								}
-	
-								// Write to output (is blocking if playing!)
-								// track.write(monoBuffer, 0, min); // not used; just for playing
-								
-								// mix monoBuffer[] into lin
-								for (int i = 0; i < lin.length; i++) {
-									lin[i] = (short) (gain + (monoBuffer[i] * (1 - ratio) + lin[i] * ratio));
-								}
-								
-							} else {
-								break;	// jump out immediately
-							}
-				 }
-				 
-			 }
-*/
-			 // continue...
 			 if (num <= 0)
 				 continue;
 			 if (!p_type.codec.isValid())
 				 continue;
+			 
+			 // start hooking in...
+			 if (audioPlay) {
+				 if(audioInfo.success) {
+					// Decode compressed MP3-File via native MPG123 library
+					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
+					if (err == MPG123_OK || err == MPG123_NEW_FORMAT) {
+						
+						// mix Buffer into lin
+						
+						for (int i = 0; i < audioBuffer.length; i++) {
+							lin[pos+i] = (short) (gain + (audioBuffer[i] * (1 - ratio) + lin[pos+i] * ratio));
+						}
+						
+					} else if (err == MPG123_DONE) {
+						audioPlay = false;
+						NativeWrapper.cleanupMP3();
+					}
+			 	}
+			 }
 
+			 // continue...
+
+			 
 			 if (RtpStreamReceiver.speakermode == AudioManager.MODE_NORMAL) {
  				 calc(lin,pos,num);
  	 			 if (RtpStreamReceiver.nearend != 0 && RtpStreamReceiver.down_time == 0)

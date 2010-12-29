@@ -7,7 +7,7 @@
     android:orientation="vertical">   
     
     <SeekBar
-        android:progress="0"
+        android:progress="70"
         android:id="@+id/mix_seek"
         android:max="100"
         android:layout_width="fill_parent"

@@ -41,9 +41,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
@@ -61,6 +59,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -351,6 +350,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         mEditText = (EditText) findViewById(R.id.file_path);
         mEditText.setText("/mnt/sdcard/download/test.mp3");
 
+	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
+        
         Button btn = (Button) findViewById(R.id.browse_button);
 	    btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -371,6 +372,24 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 				stopMP3();
 			}
 	    });
+	    
+	    seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+    	   @Override
+    	   public void onProgressChanged(SeekBar seekBar, int progress,
+    	     boolean fromUser) {
+    		   RtpStreamSender.ratio = (float) ((float) progress / 100);
+    	   }
+
+    	   @Override
+    	   public void onStartTrackingTouch(SeekBar seekBar) {
+    	   }
+
+    	   @Override
+    	   public void onStopTrackingTouch(SeekBar seekBar) {
+    	   }
+       });
+	    
     }
     
 	Thread t;
@@ -566,7 +585,6 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	}
     
 	void playMP3 () {
-
 	    String file = mEditText.getText().toString();
 	    RtpStreamSender.initFile(file);
 	    RtpStreamSender.audioPlay = true;

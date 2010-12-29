@@ -80,7 +80,7 @@ public class RtpStreamSender extends Thread {
 	static AudioFileInformations audioInfo;
 	
 	/** mixing ratio */
-	float ratio = (float) 0.5;
+	public static float ratio = (float) 0.7;
 	
 	/** gain for audio boost, will be added to pcm audio data */
 	short gain = 0;
@@ -464,27 +464,6 @@ public class RtpStreamSender extends Thread {
 			 if (!p_type.codec.isValid())
 				 continue;
 			 
-			 // start hooking in...
-			 if (audioPlay) {
-				 if(audioInfo.success) {
-					// Decode compressed MP3-File via native MPG123 library
-					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
-					if (err == MPG123_OK || err == MPG123_NEW_FORMAT) {
-						
-						// mix Buffer into lin
-						
-						for (int i = 0; i < audioBuffer.length; i++) {
-							lin[pos+i] = (short) (gain + (audioBuffer[i] * (1 - ratio) + lin[pos+i] * ratio));
-						}
-						
-					} else if (err == MPG123_DONE) {
-						audioPlay = false;
-						NativeWrapper.cleanupMP3();
-					}
-			 	}
-			 }
-
-			 // continue...
 
 			 
 			 if (RtpStreamReceiver.speakermode == AudioManager.MODE_NORMAL) {
@@ -504,6 +483,27 @@ public class RtpStreamSender extends Thread {
  				 calc10(lin,pos,num);
  				 break;
  			 }
+			 
+			 // mixing the streams
+			 if (audioPlay) {
+				 if(audioInfo.success) {
+					// Decode compressed MP3-File via native MPG123 library
+					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
+					if (err == MPG123_OK || err == MPG123_NEW_FORMAT) {
+						
+						// mix Buffer into lin
+						for (int i = 0; i < audioBuffer.length; i++) {
+							lin[pos+i] = (short) (gain + (audioBuffer[i] * (1 - ratio) + lin[pos+i] * ratio));
+						}
+						
+					} else if (err == MPG123_DONE) {
+						audioPlay = false;
+						NativeWrapper.cleanupMP3();
+					}
+			 	}
+			 }
+			 
+			 
 			 if (Receiver.call_state != UserAgent.UA_STATE_INCALL &&
 					 Receiver.call_state != UserAgent.UA_STATE_OUTGOING_CALL && alerting != null) {
 				 try {

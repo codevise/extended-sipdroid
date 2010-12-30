@@ -36,17 +36,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -587,8 +590,21 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 		if (requestCode == REQUEST_CODE_PICK_FILE_OR_DIRECTORY) {
 			if (resultCode == RESULT_OK && data != null) {
 				
-				// obtain the filename
-				String filename = data.getDataString();
+				String selectedPath;
+			    String filename;
+			    
+				Uri selectedUri = data.getData();
+
+	            // external file manager (oi, astro, andexplorer)
+                filename = selectedUri.getPath();
+
+                // media gallery
+                selectedPath = getPath(selectedUri);
+
+                if (selectedPath != null) {
+                	filename = selectedPath;
+                }
+				
 				if (filename != null) {
 					// Get rid of URI prefix:
 					if (filename.startsWith("file://")) {
@@ -600,4 +616,19 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 			}
 		}
 	}
+	
+	public String getPath(Uri uri) {
+		String retval = null;
+        String[] projection = { 
+        		MediaStore.Images.Media.DATA
+        };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        if(cursor!=null) {
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            retval = cursor.getString(columnIndex);
+        }
+        return retval;
+    }
+	
 }

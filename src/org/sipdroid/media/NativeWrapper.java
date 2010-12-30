@@ -11,7 +11,7 @@ package org.sipdroid.media;
  * 
  *
  */
-public class NativeWrapper {
+class NativeWrapper {
 	public static boolean initLib() {
 		return ninitLib();
 	}

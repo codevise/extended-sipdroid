@@ -22,7 +22,6 @@ package org.sipdroid.sipua.ui;
 
 import java.util.HashMap;
 
-import org.sipdroid.media.NativeWrapper;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
 import org.sipdroid.sipua.R;
@@ -578,8 +577,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	}
 	
 	void stopMP3 () {
-		RtpStreamSender.audioPlay = false;
-		NativeWrapper.cleanupMP3();
+		RtpStreamSender.stopAndCleanup();
 	}
 	
 	@Override

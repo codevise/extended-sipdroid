@@ -295,6 +295,11 @@ public class RtpStreamSender extends Thread {
 		RtpStreamSender.filename = filename;
 	}
 	
+	public static void stopAndCleanup() {
+		audioPlay = false;
+		NativeWrapper.cleanupMP3();
+	}
+	
 	/** Runs it in a new Thread. */
 	public void run() {
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
@@ -495,8 +500,7 @@ public class RtpStreamSender extends Thread {
 						}
 						
 					} else if (err == MPG123_DONE) {
-						audioPlay = false;
-						NativeWrapper.cleanupMP3();
+						stopAndCleanup();
 					}
 			 	}
 			 }

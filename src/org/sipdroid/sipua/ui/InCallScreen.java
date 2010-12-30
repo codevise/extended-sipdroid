@@ -22,6 +22,7 @@ package org.sipdroid.sipua.ui;
 
 import java.util.HashMap;
 
+import org.sipdroid.media.NativeWrapper;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
 import org.sipdroid.sipua.R;
@@ -31,7 +32,6 @@ import org.sipdroid.sipua.phone.CallCard;
 import org.sipdroid.sipua.phone.Phone;
 import org.sipdroid.sipua.phone.SlidingCardManager;
 
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -43,7 +43,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -62,8 +61,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
-import android.widget.Toast;
-import de.codevise.intents.FileManagerIntents;
 
 public class InCallScreen extends CallScreen implements View.OnClickListener, SensorEventListener {
 
@@ -355,7 +352,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         Button btn = (Button) findViewById(R.id.browse_button);
 	    btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				openFile();
+				pickFile();
 			}
 	    });
 
@@ -564,25 +561,15 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         setScreenBacklight((float) (active?0.1:-1));
 	}
 	
-    private void openFile() {
-		String fileName = mEditText.getText().toString();
-		
-		Intent intent = new Intent(FileManagerIntents.ACTION_PICK_FILE);
-		
-		// Construct URI from file name.
-		intent.setData(Uri.parse("file://" + fileName));
-		
-		// Set fancy title and button
-		intent.putExtra(FileManagerIntents.EXTRA_TITLE, getString(R.string.open_title));
-		intent.putExtra(FileManagerIntents.EXTRA_BUTTON_TEXT, getString(R.string.open_button));
-		
-		try { // try to open file manager activity
-			startActivityForResult(intent, REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
-		} catch (ActivityNotFoundException e) {
-			// No compatible file manager was found.
-			Toast.makeText(this, R.string.no_filemanager_installed, Toast.LENGTH_SHORT).show();
-		}
-	}
+    
+    private void pickFile() {
+		 Intent intentBrowseFiles = new Intent(Intent.ACTION_GET_CONTENT);
+         intentBrowseFiles.setType("audio/mpeg");
+//         intentBrowseFiles.setType("audio/x-wav");
+         intentBrowseFiles.addCategory(Intent.CATEGORY_OPENABLE);
+//         startActivityForResult(intentBrowseFiles, REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
+         startActivityForResult(Intent.createChooser(intentBrowseFiles, getString(R.string.open_title)), REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
+    }
     
 	void playMP3 () {
 	    String file = mEditText.getText().toString();
@@ -592,14 +579,16 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	
 	void stopMP3 () {
 		RtpStreamSender.audioPlay = false;
+		NativeWrapper.cleanupMP3();
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//		super.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, data);
 
 		if (requestCode == REQUEST_CODE_PICK_FILE_OR_DIRECTORY) {
 			if (resultCode == RESULT_OK && data != null) {
+				
 				// obtain the filename
 				String filename = data.getDataString();
 				if (filename != null) {

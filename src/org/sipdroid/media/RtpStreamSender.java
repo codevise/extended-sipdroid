@@ -360,11 +360,9 @@ public class RtpStreamSender extends Thread {
 		p_type.codec.init();
 
 		// some initialisations
-//		initFile("/mnt/sdcard/download/test.mp3");
 		int err;
 		audioBuffer = new short[frame_size];
-
-
+		audioPlay = false;
 		
 		while (running) {
 			 if (changed || record == null) {

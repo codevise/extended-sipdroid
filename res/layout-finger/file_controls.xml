@@ -2,38 +2,51 @@
 <!-- File controls Layout -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="10px"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">   
+    android:orientation="vertical">
+    
+    <TextView
+        android:layout_marginTop="10px"
+        android:layout_marginLeft="3px"
+        android:layout_marginRight="3px"
+        android:text="@string/mixer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </TextView>
     
     <SeekBar
+        android:layout_marginLeft="3px"
+        android:layout_marginRight="3px"
         android:progress="70"
         android:id="@+id/mix_seek"
         android:max="100"
         android:layout_width="fill_parent"
-        android:layout_height="30px">
+        android:layout_height="wrap_content">
     </SeekBar>
 
     <EditText
         android:id="@+id/file_path"
-        android:text=""
 	    android:maxLines="1"
 	    android:layout_marginLeft="3px"
+        android:layout_marginRight="3px"
+        android:layout_marginTop="10px"
+        android:layout_marginBottom="10px"
 	    android:clickable="false"
 	    android:textColor="#FFFFFF"
-	    android:layout_marginRight="3px"
-	    android:layout_marginTop="3px"
 	    android:layout_width="fill_parent"
-	    android:layout_marginBottom="5px"
 	    android:paddingRight="16px"
+        android:paddingLeft="16px"
 	    android:freezesText="true"
-	    android:layout_height="40px"
-	    android:paddingLeft="16px"
+	    android:layout_height="wrap_content"
 	    android:scrollHorizontally="true"
 	    android:background="@drawable/btn_dial_textfield_normal_full">
     </EditText>
     
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_marginLeft="3px"
+	        android:layout_marginRight="3px"
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
 	        android:orientation="horizontal" >
@@ -41,24 +54,31 @@
         <Button
             android:id="@+id/play_button"
             android:layout_width="wrap_content"
-            android:layout_height="40px"
+            android:layout_height="wrap_content"
             android:text="@string/play_button">
         </Button>
 
         <Button
             android:id="@+id/stop_button"
             android:layout_width="wrap_content"
-            android:layout_height="40px"
+            android:layout_height="wrap_content"
             android:text="@string/stop_button">
         </Button>
         
+        <Button
+            android:id="@+id/browse_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/browse_button">
+        </Button>
+
 	    <Button
-		    android:id="@+id/browse_button"
-		    android:layout_width="wrap_content"
-		    android:layout_height="40px"
-		    android:text="@string/browse_button">
+	        android:id="@+id/hideFileControls_button"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/hideFileControls_button">
 	    </Button>
 
     </LinearLayout>        
-        
+
 </LinearLayout>

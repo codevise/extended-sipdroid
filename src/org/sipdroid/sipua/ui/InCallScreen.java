@@ -59,10 +59,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class InCallScreen extends CallScreen implements View.OnClickListener, SensorEventListener {
 
@@ -347,7 +349,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         }
         
         mEditText = (EditText) findViewById(R.id.file_path);
-        mEditText.setText("/mnt/sdcard/download/test.mp3");
+//        mEditText.setText("/mnt/sdcard/download/test.mp3");
 
 	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
         
@@ -369,6 +371,26 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				stopMP3();
+			}
+	    });
+
+	    btn = (Button) findViewById(R.id.showFileControls_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				LinearLayout dialer = (LinearLayout) findViewById(R.id.dialer);
+				dialer.setVisibility(LinearLayout.INVISIBLE);
+				LinearLayout fileControls = (LinearLayout) findViewById(R.id.fileControls);
+				fileControls.setVisibility(LinearLayout.VISIBLE);
+			}
+	    });
+	    
+	    btn = (Button) findViewById(R.id.hideFileControls_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				LinearLayout dialer = (LinearLayout) findViewById(R.id.dialer);
+				dialer.setVisibility(LinearLayout.VISIBLE);
+				LinearLayout fileControls = (LinearLayout) findViewById(R.id.fileControls);
+				fileControls.setVisibility(LinearLayout.INVISIBLE);
 			}
 	    });
 	    
@@ -598,7 +620,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	            // external file manager (oi, astro, andexplorer)
                 filename = selectedUri.getPath();
 
-                // media gallery
+                // media player
                 selectedPath = getPath(selectedUri);
 
                 if (selectedPath != null) {
@@ -610,7 +632,11 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 					if (filename.startsWith("file://")) {
 						filename = filename.substring(7);
 					}
-					mEditText.setText(filename);
+					if (filename.endsWith(".mp3")) {
+						mEditText.setText(filename);
+					} else {
+						Toast.makeText(this, R.string.only_mp3, Toast.LENGTH_SHORT).show();
+					}
 				}				
 				
 			}

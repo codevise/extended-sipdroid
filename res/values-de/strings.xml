@@ -228,4 +228,5 @@
 <string name="browse_button">Datei wählen</string>
 <string name="play_button">Datei abspielen</string>
 <string name="stop_button">Stop</string>
+<string name="only_mp3">es werden nur MP3 Dateien unterstützt</string>
 </resources>

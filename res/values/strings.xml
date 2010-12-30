@@ -309,4 +309,8 @@
 <string name="open_button">okay</string>
 <string name="no_filemanager_installed">No file manager found. Install e. g. &quot;OI File Manager&quot; from Market.</string>
 <string name="stop_button">stop</string>
+<string name="only_mp3">only MP3 files supported </string>
+<string name="showFileControls_button">file controls</string>
+<string name="hideFileControls_button">exit</string>
+<string name="mixer">Mixer</string>
 </resources>

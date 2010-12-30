@@ -88,6 +88,9 @@ public class RtpStreamSender extends Thread {
 	/** filename of audiofile to play */
 	public static String filename = null;
 	
+	/** holds the sample rate of the current codec used */
+	static int sampleRate;
+	
 	/** constants for decoding */
 	private final static int MPG123_NEW_FORMAT = -11;
 	private final static int MPG123_OK = 0;
@@ -172,6 +175,9 @@ public class RtpStreamSender extends Thread {
 			  SipdroidSocket src_socket, String dest_addr,
 			  int dest_port) {
 		this.p_type = payload_type;
+		
+		sampleRate = this.p_type.codec.samp_rate();
+		
 		this.frame_rate = (int)frame_rate;
 		if (PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getString(Settings.PREF_SERVER, "").equals(Settings.DEFAULT_SERVER))
 			switch (payload_type.codec.number()) {
@@ -289,7 +295,7 @@ public class RtpStreamSender extends Thread {
 	int mu;
 	
 	public static void initFile(String filename) {
-		NativeWrapper.initLib();
+		NativeWrapper.initLib(sampleRate);
 		NativeWrapper.initMP3(filename);
 	    audioInfo = NativeWrapper.getAudioInformations();
 		RtpStreamSender.filename = filename;
@@ -298,6 +304,7 @@ public class RtpStreamSender extends Thread {
 	public static void stopAndCleanup() {
 		audioPlay = false;
 		NativeWrapper.cleanupMP3();
+		NativeWrapper.cleanupLib();
 	}
 	
 	/** Runs it in a new Thread. */

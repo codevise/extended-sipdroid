@@ -12,8 +12,8 @@ package org.sipdroid.media;
  *
  */
 class NativeWrapper {
-	public static boolean initLib() {
-		return ninitLib();
+	public static boolean initLib(int sampleRate) {
+		return ninitLib(sampleRate);
 	}
 	
 	public static void cleanupLib() {
@@ -58,7 +58,7 @@ class NativeWrapper {
 	 * 
 	 * @return
 	 */
-	private static native boolean ninitLib();
+	private static native boolean ninitLib(int sampleRate);
 	
 	/**
 	 * 

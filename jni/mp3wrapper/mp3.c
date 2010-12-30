@@ -27,7 +27,7 @@ mpg123_handle *mh = NULL;
 /*
  * Init MPG123, must be done one per process and before all other functions!
  */
-JNIEXPORT jboolean JNICALL Java_org_sipdroid_media_NativeWrapper_ninitLib(JNIEnv* env, jobject this)
+JNIEXPORT jboolean JNICALL Java_org_sipdroid_media_NativeWrapper_ninitLib(JNIEnv* env, jobject this, jint sampleRate)
 {	 
 	jint err = MPG123_ERR;
 
@@ -38,7 +38,7 @@ JNIEXPORT jboolean JNICALL Java_org_sipdroid_media_NativeWrapper_ninitLib(JNIEnv
 	 * Setup needed format options
 	 */
 	mpg123_format_none(mh);
-	if ((err = mpg123_format(mh, 8000, MPG123_MONO, MPG123_ENC_SIGNED_16)) != MPG123_OK) 
+	if ((err = mpg123_format(mh, sampleRate, MPG123_MONO, MPG123_ENC_SIGNED_16)) != MPG123_OK) 
 		return JNI_FALSE;
 
 	mpg123_volume();

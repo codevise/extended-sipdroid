@@ -604,7 +604,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    		Toast.makeText(this, RtpStreamSender.getError(), Toast.LENGTH_LONG).show();
 	    	}
 	    } else {
-	    	Toast.makeText(this, R.string.no_file_selected, Toast.LENGTH_LONG).show();
+	    	Toast.makeText(this, R.string.no_file_selected, Toast.LENGTH_SHORT).show();
+	    	pickFile();
 	    }
 	}
 	

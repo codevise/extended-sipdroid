@@ -622,7 +622,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 			    
 				Uri selectedUri = data.getData();
 
-	            // external file manager (oi, astro, andexplorer)
+	            // external file manager (astro, andexplorer)
                 filename = selectedUri.getPath();
 
                 // media player

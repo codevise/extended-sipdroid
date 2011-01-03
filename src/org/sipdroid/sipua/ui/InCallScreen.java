@@ -349,7 +349,6 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         }
         
         mEditText = (EditText) findViewById(R.id.file_path);
-//        mEditText.setText("/mnt/sdcard/download/test.mp3");
 
 	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
         
@@ -591,14 +590,20 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
          intentBrowseFiles.setType("audio/mpeg");
 //         intentBrowseFiles.setType("audio/x-wav");
          intentBrowseFiles.addCategory(Intent.CATEGORY_OPENABLE);
-//         startActivityForResult(intentBrowseFiles, REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
          startActivityForResult(Intent.createChooser(intentBrowseFiles, getString(R.string.open_title)), REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
     }
     
 	void playMP3 () {
 	    String file = mEditText.getText().toString();
-	    RtpStreamSender.initFile(file);
-	    RtpStreamSender.audioPlay = true;
+	    if (file != "") {
+	    	RtpStreamSender.initFile(file);
+	    	String error = RtpStreamSender.getError(); 
+	    	if (error.equals("No error... (code 0)")) {
+	    		RtpStreamSender.audioPlay = true;
+	    	} else {
+	    		Toast.makeText(this, RtpStreamSender.getError(), Toast.LENGTH_LONG).show();
+	    	}
+	    }
 	}
 	
 	void stopMP3 () {

@@ -307,6 +307,10 @@ public class RtpStreamSender extends Thread {
 		NativeWrapper.cleanupLib();
 	}
 	
+	public static String getError() {
+		return NativeWrapper.getError();
+	}
+	
 	/** Runs it in a new Thread. */
 	public void run() {
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);

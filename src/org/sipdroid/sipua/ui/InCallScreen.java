@@ -632,7 +632,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 					if (filename.startsWith("file://")) {
 						filename = filename.substring(7);
 					}
-					if (filename.endsWith(".mp3")) {
+					if (filename.toLowerCase().endsWith(".mp3")) {
 						mEditText.setText(filename);
 					} else {
 						Toast.makeText(this, R.string.only_mp3, Toast.LENGTH_SHORT).show();

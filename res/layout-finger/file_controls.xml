@@ -19,19 +19,27 @@
     <SeekBar
         android:layout_marginLeft="3px"
         android:layout_marginRight="3px"
-        android:progress="70"
+        android:progress="30"
         android:id="@+id/mix_seek"
         android:max="100"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
     </SeekBar>
 
+    <TextView
+        android:layout_marginTop="10px"
+        android:layout_marginLeft="3px"
+        android:layout_marginRight="3px"
+        android:text="@string/label_audioFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </TextView>
+    
     <EditText
         android:id="@+id/file_path"
 	    android:maxLines="1"
 	    android:layout_marginLeft="3px"
         android:layout_marginRight="3px"
-        android:layout_marginTop="10px"
         android:layout_marginBottom="10px"
 	    android:clickable="false"
 	    android:textColor="#FFFFFF"
@@ -39,46 +47,69 @@
 	    android:paddingRight="16px"
         android:paddingLeft="16px"
 	    android:freezesText="true"
-	    android:layout_height="wrap_content"
+	    android:layout_height="45px"
 	    android:scrollHorizontally="true"
 	    android:background="@drawable/btn_dial_textfield_normal_full">
     </EditText>
     
+    <Button
+        android:id="@+id/browse_button"
+        android:layout_marginLeft="3px"
+        android:layout_marginRight="3px"
+        android:layout_width="fill_parent"
+        android:layout_height="45px"
+        android:background="@drawable/btn"
+        android:textColor="#FFFFFF"
+        android:text="@string/browse_button">
+    </Button>
+        
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_marginLeft="3px"
-	        android:layout_marginRight="3px"
+	        android:layout_marginLeft="3px"
+            android:layout_marginRight="3px"
 	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
+	        android:layout_height="wrap_content"
 	        android:orientation="horizontal" >
             
         <Button
             android:id="@+id/play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="45px"
+            android:background="@drawable/btn"
+            android:textColor="#FFFFFF"
             android:text="@string/play_button">
         </Button>
 
         <Button
             android:id="@+id/stop_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="45px"
+            android:background="@drawable/btn"
+            android:textColor="#FFFFFF"
+            android:layout_weight="1"
             android:text="@string/stop_button">
         </Button>
         
-        <Button
-            android:id="@+id/browse_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/browse_button">
-        </Button>
-
-	    <Button
-	        android:id="@+id/hideFileControls_button"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/hideFileControls_button">
-	    </Button>
-
     </LinearLayout>        
 
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_marginLeft="3px"
+        android:layout_marginRight="3px"
+	    android:layout_marginTop="50px"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:orientation="vertical">
+
+        <Button
+            android:id="@+id/hideFileControls_button"
+            android:layout_width="fill_parent"
+            android:layout_height="45px"
+            android:background="@drawable/btn"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="bottom"
+            android:text="@string/hideFileControls_button">
+        </Button>
+
+    </LinearLayout>
+    
 </LinearLayout>

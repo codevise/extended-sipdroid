@@ -232,4 +232,5 @@
 <string name="hideFileControls_button">zurück</string>
 <string name="showFileControls_button">Audiodatei Steuerung</string>
 <string name="label_audioFile">Audiodatei:</string>
+<string name="open_title">Audiodatei zum Öffnen auswählen</string>
 </resources>

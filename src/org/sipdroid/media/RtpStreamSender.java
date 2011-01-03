@@ -80,7 +80,7 @@ public class RtpStreamSender extends Thread {
 	static AudioFileInformations audioInfo;
 	
 	/** mixing ratio */
-	public static float ratio = (float) 0.7;
+	public static float ratio = (float) 0.3;
 	
 	/** gain for audio boost, will be added to pcm audio data */
 	short gain = 0;
@@ -503,7 +503,7 @@ public class RtpStreamSender extends Thread {
 						
 						// mix Buffer into lin
 						for (int i = 0; i < audioBuffer.length; i++) {
-							lin[pos+i] = (short) (gain + (audioBuffer[i] * (1 - ratio) + lin[pos+i] * ratio));
+							lin[pos+i] = (short) (gain + (audioBuffer[i] * ratio + lin[pos+i] * (1 - ratio)));
 						}
 						
 					} else if (err == MPG123_DONE) {

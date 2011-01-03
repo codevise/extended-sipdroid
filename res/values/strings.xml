@@ -313,4 +313,5 @@
 <string name="showFileControls_button">file controls</string>
 <string name="hideFileControls_button">back</string>
 <string name="mixer">Mixer</string>
+<string name="label_audioFile">Audio File:</string>
 </resources>

@@ -311,6 +311,6 @@
 <string name="stop_button">stop</string>
 <string name="only_mp3">only MP3 files supported </string>
 <string name="showFileControls_button">file controls</string>
-<string name="hideFileControls_button">exit</string>
+<string name="hideFileControls_button">back</string>
 <string name="mixer">Mixer</string>
 </resources>

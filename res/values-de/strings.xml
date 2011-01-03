@@ -229,4 +229,6 @@
 <string name="play_button">Datei abspielen</string>
 <string name="stop_button">Stop</string>
 <string name="only_mp3">es werden nur MP3 Dateien unterstützt</string>
+<string name="hideFileControls_button">zurück</string>
+<string name="showFileControls_button">Audiodatei Steuerung</string>
 </resources>

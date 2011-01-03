@@ -595,7 +595,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     
 	void playMP3 () {
 	    String file = mEditText.getText().toString();
-	    if (file != "") {
+	    if (!file.equals("")) {
 	    	RtpStreamSender.initFile(file);
 	    	String error = RtpStreamSender.getError(); 
 	    	if (error.equals("No error... (code 0)")) {
@@ -603,6 +603,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    	} else {
 	    		Toast.makeText(this, RtpStreamSender.getError(), Toast.LENGTH_LONG).show();
 	    	}
+	    } else {
+	    	Toast.makeText(this, R.string.no_file_selected, Toast.LENGTH_LONG).show();
 	    }
 	}
 	

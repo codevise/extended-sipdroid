@@ -233,4 +233,5 @@
 <string name="showFileControls_button">Audiodatei Steuerung</string>
 <string name="label_audioFile">Audiodatei:</string>
 <string name="open_title">Audiodatei zum Öffnen auswählen</string>
+<string name="no_file_selected">bitte wählen sie eine Audiodatei</string>
 </resources>

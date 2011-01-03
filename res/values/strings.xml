@@ -314,4 +314,5 @@
 <string name="hideFileControls_button">back</string>
 <string name="mixer">Mixer</string>
 <string name="label_audioFile">Audio File:</string>
+<string name="no_file_selected">please select a file first</string>
 </resources>

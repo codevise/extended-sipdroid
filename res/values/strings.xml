@@ -304,7 +304,7 @@
 
 
 <string name="browse_button">select file</string>
-<string name="play_button">play file</string>
+<string name="play_button">play</string>
 <string name="open_title">choose file to open</string>
 <string name="open_button">okay</string>
 <string name="no_filemanager_installed">No file manager found. Install e. g. &quot;OI File Manager&quot; from Market.</string>
@@ -315,4 +315,5 @@
 <string name="mixer">Mixer</string>
 <string name="label_audioFile">Audio File:</string>
 <string name="no_file_selected">please select a file first</string>
+<string name="mute_mic">mute microphone</string>
 </resources>

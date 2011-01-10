@@ -235,4 +235,5 @@
 <string name="open_title">Audiodatei zum Öffnen auswählen</string>
 <string name="no_file_selected">bitte wählen sie eine Audiodatei</string>
 <string name="mute_mic">Mikrofon stumm</string>
+<string name="mixer">Lautstärke:</string>
 </resources>

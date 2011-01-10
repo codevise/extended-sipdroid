@@ -312,7 +312,7 @@
 <string name="only_mp3">only MP3 files supported </string>
 <string name="showFileControls_button">file controls</string>
 <string name="hideFileControls_button">back</string>
-<string name="mixer">Mixer</string>
+<string name="mixer">volume control</string>
 <string name="label_audioFile">Audio File:</string>
 <string name="no_file_selected">please select a file first</string>
 <string name="mute_mic">mute microphone</string>

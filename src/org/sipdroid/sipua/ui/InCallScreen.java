@@ -84,7 +84,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	SensorManager sensorManager;
     Sensor proximitySensor;
     boolean first;
-	
+
 	void screenOff(boolean off) {
         ContentResolver cr = getContentResolver();
         
@@ -351,10 +351,10 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         }
         
         mEditText = (EditText) findViewById(R.id.file_path);
-
 	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
-	    
 	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+		Button playBtn = (Button) findViewById(R.id.play_button);
+		Button stopBtn = (Button) findViewById(R.id.stop_button);
         
         Button btn = (Button) findViewById(R.id.browse_button);
 	    btn.setOnClickListener(new View.OnClickListener() {
@@ -363,15 +363,13 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 			}
 	    });
 
-	    btn = (Button) findViewById(R.id.play_button);
-	    btn.setOnClickListener(new View.OnClickListener() {
+	    playBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				playMP3();
 			}
 	    });
 	    
-	    btn = (Button) findViewById(R.id.stop_button);
-	    btn.setOnClickListener(new View.OnClickListener() {
+	    stopBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				stopMP3();
 			}
@@ -608,6 +606,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	void playMP3 () {
 	    String file = mEditText.getText().toString();
 	    if (!file.equals("")) {
+	    	showStopButton();
 		    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
 			checkBox.setChecked(true);
 	    	RtpStreamSender.initFile(file);
@@ -624,6 +623,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	}
 	
 	void stopMP3 () {
+		showPlayButton();
 	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
 		checkBox.setChecked(false);
 		RtpStreamSender.stopAndCleanup();
@@ -680,5 +680,19 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         }
         return retval;
     }
+	
+	public void showStopButton() {
+		Button playBtn = (Button) findViewById(R.id.play_button);
+		Button stopBtn = (Button) findViewById(R.id.stop_button);
+		stopBtn.setVisibility(Button.VISIBLE);
+		playBtn.setVisibility(Button.GONE);
+	}
+
+	public void showPlayButton() {
+		Button playBtn = (Button) findViewById(R.id.play_button);
+		Button stopBtn = (Button) findViewById(R.id.stop_button);
+		playBtn.setVisibility(Button.VISIBLE);
+		stopBtn.setVisibility(Button.GONE);
+	}
 	
 }

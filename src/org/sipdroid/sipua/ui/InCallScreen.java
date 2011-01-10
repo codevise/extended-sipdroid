@@ -58,6 +58,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -351,6 +353,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         mEditText = (EditText) findViewById(R.id.file_path);
 
 	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
+	    
+	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
         
         Button btn = (Button) findViewById(R.id.browse_button);
 	    btn.setOnClickListener(new View.OnClickListener() {
@@ -391,6 +395,14 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 				LinearLayout fileControls = (LinearLayout) findViewById(R.id.fileControls);
 				fileControls.setVisibility(LinearLayout.INVISIBLE);
 			}
+	    });
+	    
+	    checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+	    	
+	    	@Override
+	    	public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+    			RtpStreamSender.setMuteMic(isChecked); 
+	    	}
 	    });
 	    
 	    seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){

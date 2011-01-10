@@ -52,17 +52,6 @@
 	    android:background="@drawable/btn_dial_textfield_normal_full">
     </EditText>
     
-    <Button
-        android:id="@+id/browse_button"
-        android:layout_marginLeft="3px"
-        android:layout_marginRight="3px"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/btn"
-        android:textColor="#FFFFFF"
-        android:text="@string/browse_button">
-    </Button>
-        
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	        android:layout_marginLeft="3px"
             android:layout_marginRight="3px"
@@ -70,12 +59,22 @@
 	        android:layout_height="wrap_content"
 	        android:orientation="horizontal" >
             
+	    <Button
+	        android:id="@+id/browse_button"
+	        android:layout_width="fill_parent"
+	        android:layout_height="50dp"
+	        android:layout_weight="1"
+	        android:background="@drawable/btn"
+	        android:textColor="#FFFFFF"
+	        android:text="@string/browse_button">
+	    </Button>
+
         <Button
             android:id="@+id/play_button"
-            android:layout_weight="1"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
             android:background="@drawable/btn"
+            android:layout_weight="1"
             android:textColor="#FFFFFF"
             android:drawableLeft="@drawable/play"
             android:text="@string/play_button">
@@ -86,12 +85,13 @@
             android:layout_width="fill_parent"
             android:layout_height="50dp"
             android:background="@drawable/btn"
-            android:textColor="#FFFFFF"
             android:layout_weight="1"
+            android:textColor="#FFFFFF"
             android:drawableLeft="@drawable/stop"
+            android:visibility="gone"
             android:text="@string/stop_button">
         </Button>
-        
+
     </LinearLayout>        
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

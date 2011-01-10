@@ -542,11 +542,6 @@ public class RtpStreamSender extends Thread {
 					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
 					if (err == MPG123_OK || err == MPG123_NEW_FORMAT) {
 						
-/*						// crossfade
-						for (int i = 0; i < audioBuffer.length; i++) {
-							lin[pos+i] = (short) (gain * (audioBuffer[i] * ratio + lin[pos+i] * (1 - ratio)));
-						}
-*/
 						// use tan() of slider value as approximation because volume as perceived
 						// by humans (measured in decibels) is logarithmic, not linear
 						double gain = Math.tan(getRatio());

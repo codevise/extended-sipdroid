@@ -43,7 +43,7 @@
                 android:layout_marginLeft="3px"
                 android:layout_marginRight="3px"
                 android:layout_width="fill_parent"
-	            android:layout_height="45px"
+	            android:layout_height="50dp"
 	            android:background="@drawable/btn"
                 android:textColor="#FFFFFF"
 	            android:text="@string/showFileControls_button">

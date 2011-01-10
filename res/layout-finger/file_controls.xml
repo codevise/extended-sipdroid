@@ -19,7 +19,7 @@
     <SeekBar
         android:layout_marginLeft="3px"
         android:layout_marginRight="3px"
-        android:progress="30"
+        android:progress="79"
         android:id="@+id/mix_seek"
         android:max="100"
         android:layout_width="fill_parent"

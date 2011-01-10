@@ -608,6 +608,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	void playMP3 () {
 	    String file = mEditText.getText().toString();
 	    if (!file.equals("")) {
+		    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+			checkBox.setChecked(true);
 	    	RtpStreamSender.initFile(file);
 	    	String error = RtpStreamSender.getError(); 
 	    	if (error.equals("No error... (code 0)")) {
@@ -622,6 +624,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	}
 	
 	void stopMP3 () {
+	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+		checkBox.setChecked(false);
 		RtpStreamSender.stopAndCleanup();
 	}
 	

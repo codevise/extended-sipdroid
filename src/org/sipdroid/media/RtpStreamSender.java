@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Random;
+import java.lang.Math;
+import java.util.Arrays;
 
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.codecs.G711;
@@ -71,8 +73,16 @@ public class RtpStreamSender extends Thread {
 	int frame_size;
 	
 	/** Flag for indicating current playstate of audio stream */
-	public static boolean audioPlay = false;
+	private static boolean audioPlay = false;
 	
+	public static void setAudioPlay(boolean audioPlay) {
+		RtpStreamSender.audioPlay = audioPlay;
+	}
+
+	public static boolean isAudioPlay() {
+		return audioPlay;
+	}
+
 	/** Buffers to hold PCM audio data from file */
 	short[] audioBuffer;
 	
@@ -80,16 +90,35 @@ public class RtpStreamSender extends Thread {
 	static AudioFileInformations audioInfo;
 	
 	/** mixing ratio */
-	public static float ratio = (float) 0.3;
+	private static float ratio = (float) 0.79;
 	
-	/** gain for audio boost, will be added to pcm audio data */
-	short gain = 0;
+	public static void setRatio(float ratio) {
+		RtpStreamSender.ratio = ratio;
+	}
+
+	public static float getRatio() {
+		return ratio;
+	}
+
+	/** gain for audio boost, will be multiplied with pcm audio data */
+	//short gain = 0;
 
 	/** filename of audiofile to play */
 	public static String filename = null;
 	
 	/** holds the sample rate of the current codec used */
 	static int sampleRate;
+	
+	/** flag to indicate microphone mute */
+	private static boolean muteMic = false;
+
+	public static void setMuteMic(boolean muteMic) {
+		RtpStreamSender.muteMic = muteMic;
+	}
+
+	public static boolean isMuteMic() {
+		return muteMic;
+	}
 	
 	/** constants for decoding */
 	private final static int MPG123_NEW_FORMAT = -11;
@@ -302,7 +331,7 @@ public class RtpStreamSender extends Thread {
 	}
 	
 	public static void stopAndCleanup() {
-		audioPlay = false;
+		setAudioPlay(false);
 		NativeWrapper.cleanupMP3();
 		NativeWrapper.cleanupLib();
 	}
@@ -378,7 +407,8 @@ public class RtpStreamSender extends Thread {
 		// some initialisations
 		int err;
 		audioBuffer = new short[frame_size];
-		audioPlay = false;
+		setAudioPlay(false);
+		setMuteMic(false);
 		
 		while (running) {
 			 if (changed || record == null) {
@@ -498,16 +528,40 @@ public class RtpStreamSender extends Thread {
  				 break;
  			 }
 			 
-			 // mixing the streams
-			 if (audioPlay) {
+			// stream processing
+
+			// eleminate microphone audio data if muted
+			if (isMuteMic()) {
+				Arrays.fill(lin, (short) 0);
+			}
+			 
+			 if (isAudioPlay()) {
 				 if(audioInfo.success) {
+					 
 					// Decode compressed MP3-File via native MPG123 library
 					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
 					if (err == MPG123_OK || err == MPG123_NEW_FORMAT) {
 						
-						// mix Buffer into lin
+/*						// crossfade
 						for (int i = 0; i < audioBuffer.length; i++) {
-							lin[pos+i] = (short) (gain + (audioBuffer[i] * ratio + lin[pos+i] * (1 - ratio)));
+							lin[pos+i] = (short) (gain * (audioBuffer[i] * ratio + lin[pos+i] * (1 - ratio)));
+						}
+*/
+						// use tan() of slider value as approximation because volume as perceived
+						// by humans (measured in decibels) is logarithmic, not linear
+						double gain = Math.tan(getRatio());
+						short val;
+						
+						for (int i = 0; i < audioBuffer.length; i++) {
+							val = (short) (audioBuffer[i] * gain + lin[pos+i]);
+							
+							// avoid clipping
+							if (val < -32768) {
+								val = -32768;
+							} else if (val > 32767) {
+								val = 32767;
+							}
+							lin[pos+i] = val;
 						}
 						
 					} else if (err == MPG123_DONE) {

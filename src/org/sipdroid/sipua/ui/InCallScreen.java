@@ -410,7 +410,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     	   @Override
     	   public void onProgressChanged(SeekBar seekBar, int progress,
     	     boolean fromUser) {
-    		   RtpStreamSender.ratio = (float) ((float) progress / 100);
+    		   RtpStreamSender.setRatio((float) ((float) progress / 100));
     	   }
 
     	   @Override
@@ -611,7 +611,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    	RtpStreamSender.initFile(file);
 	    	String error = RtpStreamSender.getError(); 
 	    	if (error.equals("No error... (code 0)")) {
-	    		RtpStreamSender.audioPlay = true;
+	    		RtpStreamSender.setAudioPlay(true);
 	    	} else {
 	    		Toast.makeText(this, RtpStreamSender.getError(), Toast.LENGTH_LONG).show();
 	    	}

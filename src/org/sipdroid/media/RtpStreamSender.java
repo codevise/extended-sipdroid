@@ -490,55 +490,34 @@ public class RtpStreamSender extends Thread {
 			 }
 			 //DTMF change end
 
-			 if (frame_size < 480) {
-				 now = System.currentTimeMillis();
-				 next_tx_delay = frame_period - (now - last_tx_time);
-				 last_tx_time = now;
-				 if (next_tx_delay > 0) {
-					 try {
-						 sleep(next_tx_delay);
-					 } catch (InterruptedException e1) {
-					 }
-					 last_tx_time += next_tx_delay-sync_adj;
-				 }
-			 }
-			 pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
-			 num = record.read(lin,pos,frame_size);
+			if (frame_size < 480) {
+				now = System.currentTimeMillis();
+				next_tx_delay = frame_period - (now - last_tx_time);
+				last_tx_time = now;
+				if (next_tx_delay > 0) {
+					try {
+						sleep(next_tx_delay);
+					} catch (InterruptedException e1) {}
+					last_tx_time += next_tx_delay-sync_adj;
+				}
+			}
+			pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
+			num = record.read(lin,pos,frame_size);
 			 
-			 if (num <= 0)
-				 continue;
-			 if (!p_type.codec.isValid())
-				 continue;
-			 
-
-			 
-			 if (RtpStreamReceiver.speakermode == AudioManager.MODE_NORMAL) {
- 				 calc(lin,pos,num);
- 	 			 if (RtpStreamReceiver.nearend != 0 && RtpStreamReceiver.down_time == 0)
-	 				 noise(lin,pos,num,p/2);
-	 			 else if (nearend == 0)
-	 				 p = 0.9*p + 0.1*s;
- 			 } else switch (micgain) {
- 			 case 1:
- 				 calc1(lin,pos,num);
- 				 break;
- 			 case 2:
- 				 calc2(lin,pos,num);
- 				 break;
- 			 case 10:
- 				 calc10(lin,pos,num);
- 				 break;
- 			 }
+			if (num <= 0)
+				continue;
+			if (!p_type.codec.isValid())
+				continue;
 			 
 			// stream processing
 
-			// eleminate microphone audio data if muted
+		    // eleminate microphone audio data if muted
 			if (isMuteMic()) {
 				Arrays.fill(lin, (short) 0);
 			}
 			 
-			 if (isAudioPlay()) {
-				 if(audioInfo.success) {
+			if (isAudioPlay()) {
+				if(audioInfo.success) {
 					 
 					// Decode compressed MP3-File via native MPG123 library
 					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
@@ -566,7 +545,25 @@ public class RtpStreamSender extends Thread {
 					}
 			 	}
 			 }
+
 			 
+			 if (RtpStreamReceiver.speakermode == AudioManager.MODE_NORMAL) {
+ 				 calc(lin,pos,num);
+ 	 			 if (RtpStreamReceiver.nearend != 0 && RtpStreamReceiver.down_time == 0)
+	 				 noise(lin,pos,num,p/2);
+	 			 else if (nearend == 0)
+	 				 p = 0.9*p + 0.1*s;
+ 			 } else switch (micgain) {
+ 			 case 1:
+ 				 calc1(lin,pos,num);
+ 				 break;
+ 			 case 2:
+ 				 calc2(lin,pos,num);
+ 				 break;
+ 			 case 10:
+ 				 calc10(lin,pos,num);
+ 				 break;
+ 			 }
 			 
 			 if (Receiver.call_state != UserAgent.UA_STATE_INCALL &&
 					 Receiver.call_state != UserAgent.UA_STATE_OUTGOING_CALL && alerting != null) {

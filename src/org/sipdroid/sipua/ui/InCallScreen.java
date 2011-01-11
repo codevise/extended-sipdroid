@@ -266,11 +266,15 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     		switch (msg.what) {
     		
     		case MSG_PLAY:
-    			showStopButton();
+    			if (stopBtn.getVisibility() != Button.VISIBLE) {
+    				showStopButton();
+    			}
     			break;
     		case MSG_STOP:
-    			showPlayButton();
-    			unMuteMic();
+    			if (playBtn.getVisibility() != Button.VISIBLE) {
+    				showPlayButton();
+//        			muteMic(false);
+    			}
     			break;
     		
     		case MSG_ANSWER:
@@ -634,14 +638,14 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	private void playMP3 () {
 	    String file = mEditText.getText().toString();
 	    if (!file.equals("")) {
-	    	showStopButton();
-	    	setPlaying(true);
-		    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
-			checkBox.setChecked(true);
 	    	RtpStreamSender.initFile(file);
 	    	String error = RtpStreamSender.getError(); 
 	    	if (error.equals("No error... (code 0)")) {
 	    		RtpStreamSender.setAudioPlay(true);
+		    	showStopButton();
+		    	setPlaying(true);
+			    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+				checkBox.setChecked(true);
 	    	} else {
 	    		Toast.makeText(this, RtpStreamSender.getError(), Toast.LENGTH_LONG).show();
 	    	}
@@ -654,7 +658,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	private void stopMP3() {
 		setPlaying(false);
 		showPlayButton();
-		unMuteMic();
+//		muteMic(false);
 		RtpStreamSender.stopAndCleanup();
 	}
 	
@@ -720,9 +724,9 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 		stopBtn.setVisibility(Button.GONE);
 	}
 	
-	public void unMuteMic() {
+	public void muteMic(boolean mute) {
 	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
-		checkBox.setChecked(false);
+		checkBox.setChecked(mute);
 	}
 	
 }

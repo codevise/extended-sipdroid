@@ -2,23 +2,23 @@
 <!-- File controls Layout -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_marginTop="5px"
+    android:layout_marginTop="5dp"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
     
     <TextView
-        android:layout_marginTop="5px"
-        android:layout_marginLeft="3px"
-        android:layout_marginRight="3px"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         android:text="@string/mixer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
     </TextView>
     
     <SeekBar
-        android:layout_marginLeft="3px"
-        android:layout_marginRight="3px"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         android:progress="79"
         android:id="@+id/mix_seek"
         android:max="100"
@@ -27,9 +27,9 @@
     </SeekBar>
 
     <TextView
-        android:layout_marginTop="5px"
-        android:layout_marginLeft="3px"
-        android:layout_marginRight="3px"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         android:text="@string/label_audioFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -38,23 +38,23 @@
     <EditText
         android:id="@+id/file_path"
 	    android:maxLines="1"
-	    android:layout_marginLeft="3px"
-        android:layout_marginRight="3px"
-        android:layout_marginBottom="10px"
+	    android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="10dp"
 	    android:clickable="false"
 	    android:textColor="#FFFFFF"
 	    android:layout_width="fill_parent"
-	    android:paddingRight="16px"
-        android:paddingLeft="16px"
+	    android:paddingRight="16dp"
+        android:paddingLeft="16dp"
 	    android:freezesText="true"
-	    android:layout_height="45px"
+	    android:layout_height="45dp"
 	    android:scrollHorizontally="true"
 	    android:background="@drawable/btn_dial_textfield_normal_full">
     </EditText>
     
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	        android:layout_marginLeft="3px"
-            android:layout_marginRight="3px"
+	        android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:orientation="horizontal" >
@@ -62,7 +62,7 @@
 	    <Button
 	        android:id="@+id/browse_button"
 	        android:layout_width="fill_parent"
-	        android:layout_height="50dp"
+	        android:layout_height="60dp"
 	        android:layout_weight="1"
 	        android:background="@drawable/btn"
 	        android:textColor="#FFFFFF"
@@ -72,7 +72,7 @@
         <Button
             android:id="@+id/play_button"
             android:layout_width="fill_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:background="@drawable/btn"
             android:layout_weight="1"
             android:textColor="#FFFFFF"
@@ -83,7 +83,7 @@
         <Button
             android:id="@+id/stop_button"
             android:layout_width="fill_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:background="@drawable/btn"
             android:layout_weight="1"
             android:textColor="#FFFFFF"
@@ -95,8 +95,8 @@
     </LinearLayout>        
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_marginLeft="3px"
-        android:layout_marginRight="3px"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:orientation="vertical">
@@ -111,7 +111,7 @@
         <Button
             android:id="@+id/hideFileControls_button"
             android:layout_width="fill_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:background="@drawable/btn"
             android:textColor="#FFFFFF"
             android:layout_gravity="bottom"

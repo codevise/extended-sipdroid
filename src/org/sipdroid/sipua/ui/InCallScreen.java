@@ -85,6 +85,20 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     Sensor proximitySensor;
     boolean first;
 
+    static Button playBtn;
+    static Button stopBtn;
+    private static boolean playing = false;
+    final int MSG_PLAY = 5;
+    final int MSG_STOP = 6;
+    
+	public static void setPlaying(boolean playing) {
+		InCallScreen.playing = playing;
+	}
+
+	public static boolean isPlaying() {
+		return playing;
+	}
+
 	void screenOff(boolean off) {
         ContentResolver cr = getContentResolver();
         
@@ -214,6 +228,11 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 							t = null;
 							break;
 						}
+						if (isPlaying()) {
+							mHandler.sendEmptyMessage(MSG_PLAY);
+						} else {
+							mHandler.sendEmptyMessage(MSG_STOP);
+						}
 						if (len != mDigits.getText().length()) {
 							time = SystemClock.elapsedRealtime();
 							if (tg != null) tg.startTone(mToneMap.get(mDigits.getText().charAt(len)));
@@ -245,6 +264,15 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     Handler mHandler = new Handler() {
     	public void handleMessage(Message msg) {
     		switch (msg.what) {
+    		
+    		case MSG_PLAY:
+    			showStopButton();
+    			break;
+    		case MSG_STOP:
+    			showPlayButton();
+    			unMuteMic();
+    			break;
+    		
     		case MSG_ANSWER:
         		if (Receiver.call_state == UserAgent.UA_STATE_INCOMING_CALL)
         			answer();
@@ -353,8 +381,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         mEditText = (EditText) findViewById(R.id.file_path);
 	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
 	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
-		Button playBtn = (Button) findViewById(R.id.play_button);
-		Button stopBtn = (Button) findViewById(R.id.stop_button);
+		playBtn = (Button) findViewById(R.id.play_button);
+		stopBtn = (Button) findViewById(R.id.stop_button);
         
         Button btn = (Button) findViewById(R.id.browse_button);
 	    btn.setOnClickListener(new View.OnClickListener() {
@@ -603,10 +631,11 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
          startActivityForResult(Intent.createChooser(intentBrowseFiles, getString(R.string.open_title)), REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
     }
     
-	void playMP3 () {
+	private void playMP3 () {
 	    String file = mEditText.getText().toString();
 	    if (!file.equals("")) {
 	    	showStopButton();
+	    	setPlaying(true);
 		    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
 			checkBox.setChecked(true);
 	    	RtpStreamSender.initFile(file);
@@ -622,10 +651,10 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    }
 	}
 	
-	void stopMP3 () {
+	private void stopMP3() {
+		setPlaying(false);
 		showPlayButton();
-	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
-		checkBox.setChecked(false);
+		unMuteMic();
 		RtpStreamSender.stopAndCleanup();
 	}
 	
@@ -682,17 +711,18 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     }
 	
 	public void showStopButton() {
-		Button playBtn = (Button) findViewById(R.id.play_button);
-		Button stopBtn = (Button) findViewById(R.id.stop_button);
 		stopBtn.setVisibility(Button.VISIBLE);
 		playBtn.setVisibility(Button.GONE);
 	}
 
 	public void showPlayButton() {
-		Button playBtn = (Button) findViewById(R.id.play_button);
-		Button stopBtn = (Button) findViewById(R.id.stop_button);
-		playBtn.setVisibility(Button.VISIBLE);
+  		playBtn.setVisibility(Button.VISIBLE);
 		stopBtn.setVisibility(Button.GONE);
+	}
+	
+	public void unMuteMic() {
+	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+		checkBox.setChecked(false);
 	}
 	
 }

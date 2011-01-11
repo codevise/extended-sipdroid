@@ -35,6 +35,7 @@ import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
 import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.UserAgent;
+import org.sipdroid.sipua.ui.InCallScreen;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
@@ -334,6 +335,7 @@ public class RtpStreamSender extends Thread {
 		setAudioPlay(false);
 		NativeWrapper.cleanupMP3();
 		NativeWrapper.cleanupLib();
+		InCallScreen.setPlaying(false);
 	}
 	
 	public static String getError() {

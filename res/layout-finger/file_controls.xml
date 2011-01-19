@@ -66,6 +66,7 @@
 	        android:layout_weight="1"
 	        android:background="@drawable/btn"
 	        android:textColor="#FFFFFF"
+            android:drawableLeft="@drawable/folder"
 	        android:text="@string/browse_button">
 	    </Button>
 

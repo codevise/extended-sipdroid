@@ -383,8 +383,10 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         }
         
         mEditText = (EditText) findViewById(R.id.file_path);
-	    SeekBar seekBar = (SeekBar) findViewById(R.id.mix_seek);
-	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+	    SeekBar volumeControl = (SeekBar) findViewById(R.id.mix_seek);
+	    SeekBar wiretap = (SeekBar) findViewById(R.id.wiretap_seek);
+	    CheckBox checkBoxMic = (CheckBox) findViewById(R.id.mute_mic);
+	    CheckBox checkBoxWiretap = (CheckBox) findViewById(R.id.mute_wiretap);
 		playBtn = (Button) findViewById(R.id.play_button);
 		stopBtn = (Button) findViewById(R.id.stop_button);
         
@@ -427,7 +429,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 			}
 	    });
 	    
-	    checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+	    checkBoxMic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 	    	
 	    	@Override
 	    	public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
@@ -435,7 +437,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	    	}
 	    });
 	    
-	    seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+	    volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
     	   @Override
     	   public void onProgressChanged(SeekBar seekBar, int progress,
@@ -444,11 +446,37 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     	   }
 
     	   @Override
-    	   public void onStartTrackingTouch(SeekBar seekBar) {
+    	   public void onStartTrackingTouch(SeekBar volumeControl) {
     	   }
 
     	   @Override
-    	   public void onStopTrackingTouch(SeekBar seekBar) {
+    	   public void onStopTrackingTouch(SeekBar volumeControl) {
+    	   }
+       });
+
+	    
+	    checkBoxWiretap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+	    	
+	    	@Override
+	    	public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+    			RtpStreamReceiver.setMuteWiretap(isChecked);
+	    	}
+	    });
+	    
+	    wiretap.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+    	   @Override
+    	   public void onProgressChanged(SeekBar seekBar, int progress,
+    	     boolean fromUser) {
+    		   RtpStreamReceiver.setRatio((float) ((float) progress / 100));
+    	   }
+
+    	   @Override
+    	   public void onStartTrackingTouch(SeekBar wiretap) {
+    	   }
+
+    	   @Override
+    	   public void onStopTrackingTouch(SeekBar wiretap) {
     	   }
        });
 	    

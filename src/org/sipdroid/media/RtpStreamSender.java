@@ -72,10 +72,11 @@ public class RtpStreamSender extends Thread {
 
 	/** Number of bytes per frame */
 	int frame_size;
-	
+
 	/** Flag for indicating current playstate of audio stream */
 	private static boolean audioPlay = false;
-	
+
+	/** setter/getter for audioPlay */
 	public static void setAudioPlay(boolean audioPlay) {
 		RtpStreamSender.audioPlay = audioPlay;
 	}
@@ -83,7 +84,15 @@ public class RtpStreamSender extends Thread {
 	public static boolean isAudioPlay() {
 		return audioPlay;
 	}
+	
+	/** indicator if receiver is ready */
+	private static boolean wiretap = false;
 
+	/** setter for wiretap */
+	public static void setWiretap(boolean wiretap) {
+		RtpStreamSender.wiretap = wiretap;
+	}
+	
 	/** Buffers to hold PCM audio data from file */
 	short[] audioBuffer;
 	
@@ -93,6 +102,7 @@ public class RtpStreamSender extends Thread {
 	/** mixing ratio */
 	private static float ratio = (float) 0.79;
 	
+	/** setter/getter for ratio */
 	public static void setRatio(float ratio) {
 		RtpStreamSender.ratio = ratio;
 	}
@@ -100,9 +110,6 @@ public class RtpStreamSender extends Thread {
 	public static float getRatio() {
 		return ratio;
 	}
-
-	/** gain for audio boost, will be multiplied with pcm audio data */
-	//short gain = 0;
 
 	/** filename of audiofile to play */
 	public static String filename = null;
@@ -409,6 +416,7 @@ public class RtpStreamSender extends Thread {
 		// some initialisations
 		int err;
 		audioBuffer = new short[frame_size];
+		setWiretap(false);
 		setAudioPlay(false);
 		setMuteMic(false);
 		
@@ -545,7 +553,6 @@ public class RtpStreamSender extends Thread {
 					}
 			 	}
 			 }
-
 			 
 			 if (RtpStreamReceiver.speakermode == AudioManager.MODE_NORMAL) {
  				 calc(lin,pos,num);
@@ -564,6 +571,15 @@ public class RtpStreamSender extends Thread {
  				 calc10(lin,pos,num);
  				 break;
  			 }
+			 
+			 // if receiver is ready and checked wiretap
+			 if (wiretap && RtpStreamReceiver.getWiretap()) {
+				 short[] tempBuffer = new short[num];
+				 for (int i = 0; i < num; i++) {
+					 tempBuffer[i] = lin[pos+i];
+				 }
+				 RtpStreamReceiver.rb.enqueue(tempBuffer);
+			 }
 			 
 			 if (Receiver.call_state != UserAgent.UA_STATE_INCALL &&
 					 Receiver.call_state != UserAgent.UA_STATE_OUTGOING_CALL && alerting != null) {

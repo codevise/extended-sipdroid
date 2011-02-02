@@ -58,6 +58,29 @@ public class RtpStreamReceiver extends Thread {
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
 
+	/** the mixture ratio for receiver/transmitter */
+	private static double ratio = 1;
+	
+	/** setter for the mixture ratio */
+	public static void setRatio(float ratio) {
+		RtpStreamReceiver.ratio = ratio;
+	}
+	
+	/** start/stop wiretap */
+	private static boolean wiretap = false;
+	
+	/** getter/setter for wiretap */
+	public static boolean getWiretap() {
+		return wiretap;
+	}
+
+	public static void setMuteWiretap(boolean wiretap) {
+		RtpStreamReceiver.wiretap = wiretap;
+	}
+	
+	/** buffer to syncronize audio io */
+	public static RingBuffer rb = new RingBuffer(6400);
+	
 	/** Payload type */
 	Codecs.Map p_type;
 
@@ -523,6 +546,8 @@ public class RtpStreamReceiver extends Thread {
 		setCodec();
 		short lin[] = new short[BUFFER_SIZE];
 		short lin2[] = new short[BUFFER_SIZE];
+		RtpStreamSender.setWiretap(true);
+		setMuteWiretap(false);
 		int server, headroom, todo, len = 0, m = 1, expseq, getseq, vm = 1, gap, gseq;
 		ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL,(int)(ToneGenerator.MAX_VOLUME*2*org.sipdroid.sipua.ui.Settings.getEarGain()));
 		track.play();
@@ -551,8 +576,10 @@ public class RtpStreamReceiver extends Thread {
 				if (timeout != 0) {
 					tg.stopTone();
 					track.pause();
-					for (int i = maxjitter*2; i > 0; i -= BUFFER_SIZE)
+					
+					for (int i = maxjitter*2; i > 0; i -= BUFFER_SIZE) {
 						write(lin2,0,i>BUFFER_SIZE?BUFFER_SIZE:i);
+					}
 					cnt += maxjitter*2;
 					track.play();
 					empty();
@@ -596,8 +623,17 @@ public class RtpStreamReceiver extends Thread {
 					 }
 					 len = p_type.codec.decode(buffer, lin, rtp_packet.getPayloadLength());
 					 
-		 			 if (speakermode == AudioManager.MODE_NORMAL)
+					 // get the audio data from ring buffer and mix it into the decoded audio data
+					 if (wiretap) {
+						 short[] audio = rb.dequeue(len);
+	                     for (int i = 0; i < len; i++) {
+						     lin[i] = (short)((lin[i] * (1-ratio)) + (audio[i] * ratio));
+						 }
+					 }
+					 
+		 			 if (speakermode == AudioManager.MODE_NORMAL) {
 		 				 calc(lin,0,len);
+		 			 }
 				 }
 				 
 				 avgheadroom = avgheadroom * 0.99 + (double)headroom * 0.01;
@@ -613,16 +649,18 @@ public class RtpStreamReceiver extends Thread {
 							 minheadroom = maxjitter*2;
 						 }
 					todo = jitter - headroom;
+
 					write(lin2,0,todo>BUFFER_SIZE?BUFFER_SIZE:todo);
 				 }
 
 				 if (cnt > 500*mu && cnt2 < 2) {
 					 todo = headroom - jitter;
-					 if (todo < len)
+					 if (todo < len) {
 						 write(lin,todo,len-todo);
-				 } else
-					 write(lin,0,len);
-				 
+					 }
+				 } else {
+				 	write(lin,0,len);
+				 }			 
 				 if (seq != 0) {
 					 getseq = gseq&0xff;
 					 expseq = ++seq&0xff;

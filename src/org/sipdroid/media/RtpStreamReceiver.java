@@ -548,6 +548,7 @@ public class RtpStreamReceiver extends Thread {
 		short lin2[] = new short[BUFFER_SIZE];
 		RtpStreamSender.setWiretap(true);
 		setMuteWiretap(false);
+		setRatio(1);
 		int server, headroom, todo, len = 0, m = 1, expseq, getseq, vm = 1, gap, gseq;
 		ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL,(int)(ToneGenerator.MAX_VOLUME*2*org.sipdroid.sipua.ui.Settings.getEarGain()));
 		track.play();
@@ -623,7 +624,7 @@ public class RtpStreamReceiver extends Thread {
 					 }
 					 len = p_type.codec.decode(buffer, lin, rtp_packet.getPayloadLength());
 					 
-					 // get the audio data from ring buffer and mix it into the decoded audio data
+					 // get the audio data from ring buffer and mix them into the decoded audio data
 					 if (wiretap) {
 						 short[] audio = rb.dequeue(len);
 	                     for (int i = 0; i < len; i++) {

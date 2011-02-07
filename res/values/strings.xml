@@ -319,7 +319,7 @@
 <string name="no_file_selected">please select a file first</string>
 <string name="mute_mic">mute microphone</string>
 <string name="wiretap">&lt;- wiretap -&gt;</string>
-<string name="mute_wiretap">wiretap</string>
+<string name="mute_wiretap">mix wiretap</string>
 <string name="wiretap_rx">Rx</string>
 <string name="wiretap_tx">Tx</string>
 </resources>

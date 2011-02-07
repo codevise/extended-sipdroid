@@ -114,88 +114,68 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
 			android:layout_width="fill_parent"
-			android:layout_height="1dip"
+			android:layout_height="1dp"
 			android:background="#999">
 		</View>
+
+        <CheckBox
+            android:id="@+id/mute_wiretap"
+            android:text="@string/mute_wiretap"
+            android:layout_marginLeft="3dp"
+            android:checked="false"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp">
+        </CheckBox>        
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            android:layout_height="80dp"
-            android:layout_width="match_parent">
-        
-	        <CheckBox
-	            android:id="@+id/mute_wiretap"
-	            android:checked="false"
-                android:gravity="top"
-	            android:layout_weight="1"
-	            android:layout_width="wrap_content"
-	            android:layout_height="match_parent">
-	        </CheckBox>        
-        
-	        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_weight="10"
-	            android:layout_marginLeft="3dp"
-	            android:layout_marginRight="3dp"
-                android:orientation="vertical"
-	            android:layout_height="wrap_content"
-	            android:layout_width="match_parent">
-	
-		        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		            android:layout_marginLeft="3dp"
-		            android:layout_marginRight="3dp"
-		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
-		            android:orientation="horizontal" >
-		
-				    <TextView
-				        android:layout_marginLeft="3dp"
-				        android:layout_marginRight="3dp"
-		                android:layout_weight="1"
-				        android:text="@string/wiretap_rx"
-				        android:layout_width="wrap_content"
-				        android:layout_height="wrap_content">
-				    </TextView>
-		
-		            <TextView
-		                android:layout_marginLeft="3dp"
-		                android:layout_marginRight="3dp"
-		                android:layout_weight="1"
-		                android:gravity="center_horizontal"
-		                android:text="@string/wiretap"
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content">
-		            </TextView>
-		
-		            <TextView
-		                android:layout_marginLeft="3dp"
-		                android:layout_marginRight="3dp"
-		                android:layout_weight="1"
-		                android:gravity="right"
-		                android:text="@string/wiretap_tx"
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content">
-		            </TextView>
-		
-		        </LinearLayout>
-	
-		        <SeekBar
-		            android:id="@+id/wiretap_seek"
-		            android:layout_marginBottom="10dp"
-		            android:layout_marginLeft="3dp"
-		            android:layout_marginRight="3dp"
-		            android:progress="100"
-		            android:max="100"
-		            android:layout_height="wrap_content"
-		            android:layout_width="match_parent">
-		        </SeekBar>
-	        
-	        </LinearLayout>
-        	    
-        </LinearLayout>
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
+		    <TextView
+		        android:layout_marginLeft="3dp"
+		        android:layout_marginRight="3dp"
+                android:layout_weight="1"
+		        android:text="@string/wiretap_rx"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content">
+		    </TextView>
+
+            <TextView
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="@string/wiretap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            </TextView>
+
+            <TextView
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:text="@string/wiretap_tx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            </TextView>
+
+        </LinearLayout>
+	
+        <SeekBar
+            android:id="@+id/wiretap_seek"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:progress="100"
+            android:max="100"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+        </SeekBar>
+	        
         <Button
             android:id="@+id/hideFileControls_button"
             android:layout_width="fill_parent"

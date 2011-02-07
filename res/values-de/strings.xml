@@ -239,5 +239,5 @@
 <string name="mute_mic">Mikrofon stumm</string>
 <string name="mixer">Lautstärke:</string>
 <string name="wiretap">&lt;- Abhören -&gt;</string>
-<string name="mute_wiretap">Abhören</string>
+<string name="mute_wiretap">Abhören mischen</string>
 </resources>

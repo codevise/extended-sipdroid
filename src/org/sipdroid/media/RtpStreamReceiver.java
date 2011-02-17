@@ -58,29 +58,6 @@ public class RtpStreamReceiver extends Thread {
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
 
-	/** the mixture ratio for receiver/transmitter */
-	private static double ratio = 1;
-	
-	/** setter for the mixture ratio */
-	public static void setRatio(float ratio) {
-		RtpStreamReceiver.ratio = ratio;
-	}
-	
-	/** start/stop wiretap */
-	private static boolean wiretap = false;
-	
-	/** getter/setter for wiretap */
-	public static boolean getWiretap() {
-		return wiretap;
-	}
-
-	public static void setMuteWiretap(boolean wiretap) {
-		RtpStreamReceiver.wiretap = wiretap;
-	}
-	
-	/** buffer to syncronize audio io */
-	public static RingBuffer rb = new RingBuffer(6400);
-	
 	/** Payload type */
 	Codecs.Map p_type;
 
@@ -146,7 +123,7 @@ public class RtpStreamReceiver extends Thread {
 	}
 	
 	void cleanupBluetooth() {
-		if (was_enabled && Integer.parseInt(Build.VERSION.SDK) == 8 && !Build.VERSION.RELEASE.equals("2.2.1")) {
+		if (was_enabled && Integer.parseInt(Build.VERSION.SDK) == 8) {
 			enableBluetooth(true);
 			try {
 				sleep(3000);
@@ -296,7 +273,7 @@ public class RtpStreamReceiver extends Thread {
 				int oldring = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getInt("oldring",0);
 				if (oldring > 0) setStreamVolume(AudioManager.STREAM_RING,(int)(
 						am.getStreamMaxVolume(AudioManager.STREAM_RING)*
-						org.sipdroid.sipua.ui.Settings.getEarGain()), 0);
+						org.sipdroid.sipua.ui.Settings.getEarGain()*3/4), 0);
 				track.setStereoVolume(AudioTrack.getMaxVolume()*
 						org.sipdroid.sipua.ui.Settings.getEarGain()
 						,AudioTrack.getMaxVolume()*
@@ -483,18 +460,21 @@ public class RtpStreamReceiver extends Thread {
 					RtpStreamSender.delay != 0 ||
 					!InCallScreen.started;
 				if (lockFirst || lockLast != lockNew) {
-					lockFirst = false;
 					lockLast = lockNew;
 					lock(false);
+					lockFirst = false;
 					if (pwl == null) {
 						PowerManager pm = (PowerManager) Receiver.mContext.getSystemService(Context.POWER_SERVICE);
 						pwl = pm.newWakeLock(lockNew?(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP):PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Sipdroid.Receiver");
 						pwl.acquire();
 					}
 				}
-			} else if (pwl != null) {
-				pwl.release();
-				pwl = null;
+			} else {
+				lockFirst = true;
+				if (pwl != null) {
+					pwl.release();
+					pwl = null;
+				}
 			}
 		} catch (Exception e) {
 		}
@@ -546,9 +526,6 @@ public class RtpStreamReceiver extends Thread {
 		setCodec();
 		short lin[] = new short[BUFFER_SIZE];
 		short lin2[] = new short[BUFFER_SIZE];
-		RtpStreamSender.setWiretap(true);
-		setMuteWiretap(false);
-		setRatio(1);
 		int server, headroom, todo, len = 0, m = 1, expseq, getseq, vm = 1, gap, gseq;
 		ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL,(int)(ToneGenerator.MAX_VOLUME*2*org.sipdroid.sipua.ui.Settings.getEarGain()));
 		track.play();
@@ -577,10 +554,8 @@ public class RtpStreamReceiver extends Thread {
 				if (timeout != 0) {
 					tg.stopTone();
 					track.pause();
-					
-					for (int i = maxjitter*2; i > 0; i -= BUFFER_SIZE) {
+					for (int i = maxjitter*2; i > 0; i -= BUFFER_SIZE)
 						write(lin2,0,i>BUFFER_SIZE?BUFFER_SIZE:i);
-					}
 					cnt += maxjitter*2;
 					track.play();
 					empty();
@@ -624,17 +599,8 @@ public class RtpStreamReceiver extends Thread {
 					 }
 					 len = p_type.codec.decode(buffer, lin, rtp_packet.getPayloadLength());
 					 
-					 // get the audio data from ring buffer and mix them into the decoded audio data
-					 if (wiretap) {
-						 short[] audio = rb.dequeue(len);
-	                     for (int i = 0; i < len; i++) {
-						     lin[i] = (short)((lin[i] * (1-ratio)) + (audio[i] * ratio));
-						 }
-					 }
-					 
-		 			 if (speakermode == AudioManager.MODE_NORMAL) {
+		 			 if (speakermode == AudioManager.MODE_NORMAL)
 		 				 calc(lin,0,len);
-		 			 }
 				 }
 				 
 				 avgheadroom = avgheadroom * 0.99 + (double)headroom * 0.01;
@@ -650,18 +616,16 @@ public class RtpStreamReceiver extends Thread {
 							 minheadroom = maxjitter*2;
 						 }
 					todo = jitter - headroom;
-
 					write(lin2,0,todo>BUFFER_SIZE?BUFFER_SIZE:todo);
 				 }
 
 				 if (cnt > 500*mu && cnt2 < 2) {
 					 todo = headroom - jitter;
-					 if (todo < len) {
+					 if (todo < len)
 						 write(lin,todo,len-todo);
-					 }
-				 } else {
-				 	write(lin,0,len);
-				 }			 
+				 } else
+					 write(lin,0,len);
+				 
 				 if (seq != 0) {
 					 getseq = gseq&0xff;
 					 expseq = ++seq&0xff;

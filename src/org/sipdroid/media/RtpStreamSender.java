@@ -26,22 +26,16 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Random;
-import java.lang.Math;
-import java.util.Arrays;
 
-import org.sipdroid.codecs.Codecs;
-import org.sipdroid.codecs.G711;
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
 import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.UserAgent;
-import org.sipdroid.sipua.ui.InCallScreen;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
-
-import org.sipdroid.media.AudioFileInformations;
-import org.sipdroid.media.NativeWrapper;
+import org.sipdroid.codecs.Codecs;
+import org.sipdroid.codecs.G711;
 
 import android.content.Context;
 import android.media.AudioFormat;
@@ -72,66 +66,6 @@ public class RtpStreamSender extends Thread {
 
 	/** Number of bytes per frame */
 	int frame_size;
-
-	/** Flag for indicating current playstate of audio stream */
-	private static boolean audioPlay = false;
-
-	/** setter/getter for audioPlay */
-	public static void setAudioPlay(boolean audioPlay) {
-		RtpStreamSender.audioPlay = audioPlay;
-	}
-
-	public static boolean isAudioPlay() {
-		return audioPlay;
-	}
-	
-	/** indicator if receiver is ready */
-	private static boolean wiretap = false;
-
-	/** setter for wiretap */
-	public static void setWiretap(boolean wiretap) {
-		RtpStreamSender.wiretap = wiretap;
-	}
-	
-	/** Buffers to hold PCM audio data from file */
-	short[] audioBuffer;
-	
-	/** Audio file informations from native decoder */ 
-	static AudioFileInformations audioInfo;
-	
-	/** mixing ratio */
-	private static float ratio = (float) 0.79;
-	
-	/** setter/getter for ratio */
-	public static void setRatio(float ratio) {
-		RtpStreamSender.ratio = ratio;
-	}
-
-	public static float getRatio() {
-		return ratio;
-	}
-
-	/** filename of audiofile to play */
-	public static String filename = null;
-	
-	/** holds the sample rate of the current codec used */
-	static int sampleRate;
-	
-	/** flag to indicate microphone mute */
-	private static boolean muteMic = false;
-
-	public static void setMuteMic(boolean muteMic) {
-		RtpStreamSender.muteMic = muteMic;
-	}
-
-	public static boolean isMuteMic() {
-		return muteMic;
-	}
-	
-	/** constants for decoding */
-	private final static int MPG123_NEW_FORMAT = -11;
-	private final static int MPG123_OK = 0;
-	private final static int MPG123_DONE = -12;
 
 	/**
 	 * Whether it works synchronously with a local clock, or it it acts as slave
@@ -212,9 +146,6 @@ public class RtpStreamSender extends Thread {
 			  SipdroidSocket src_socket, String dest_addr,
 			  int dest_port) {
 		this.p_type = payload_type;
-		
-		sampleRate = this.p_type.codec.samp_rate();
-		
 		this.frame_rate = (int)frame_rate;
 		if (PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getString(Settings.PREF_SERVER, "").equals(Settings.DEFAULT_SERVER))
 			switch (payload_type.codec.number()) {
@@ -331,24 +262,6 @@ public class RtpStreamSender extends Thread {
 	public static int m;
 	int mu;
 	
-	public static void initFile(String filename) {
-		NativeWrapper.initLib(sampleRate);
-		NativeWrapper.initMP3(filename);
-	    audioInfo = NativeWrapper.getAudioInformations();
-		RtpStreamSender.filename = filename;
-	}
-	
-	public static void stopAndCleanup() {
-		setAudioPlay(false);
-		NativeWrapper.cleanupMP3();
-		NativeWrapper.cleanupLib();
-		InCallScreen.setPlaying(false);
-	}
-	
-	public static String getError() {
-		return NativeWrapper.getError();
-	}
-	
 	/** Runs it in a new Thread. */
 	public void run() {
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
@@ -412,14 +325,6 @@ public class RtpStreamSender extends Thread {
 			if (!Sipdroid.release) e2.printStackTrace();
 		}
 		p_type.codec.init();
-
-		// some initialisations
-		int err;
-		audioBuffer = new short[frame_size];
-		setWiretap(false);
-		setAudioPlay(false);
-		setMuteMic(false);
-		
 		while (running) {
 			 if (changed || record == null) {
 				if (record != null) {
@@ -432,8 +337,8 @@ public class RtpStreamSender extends Thread {
 					}
 				}
 				changed = false;
-				record = new AudioRecord(MediaRecorder.AudioSource.MIC, p_type.codec.samp_rate(),
-							AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,	min);
+				record = new AudioRecord(MediaRecorder.AudioSource.MIC, p_type.codec.samp_rate(), AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, 
+							min);
 				if (record.getState() != AudioRecord.STATE_INITIALIZED) {
 					Receiver.engine(Receiver.mContext).rejectcall();
 					record = null;
@@ -498,62 +403,25 @@ public class RtpStreamSender extends Thread {
 			 }
 			 //DTMF change end
 
-			if (frame_size < 480) {
-				now = System.currentTimeMillis();
-				next_tx_delay = frame_period - (now - last_tx_time);
-				last_tx_time = now;
-				if (next_tx_delay > 0) {
-					try {
-						sleep(next_tx_delay);
-					} catch (InterruptedException e1) {}
-					last_tx_time += next_tx_delay-sync_adj;
-				}
-			}
-			pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
-			num = record.read(lin,pos,frame_size);
-			 
-			if (num <= 0)
-				continue;
-			if (!p_type.codec.isValid())
-				continue;
-			 
-			// stream processing
-
-		    // eleminate microphone audio data if muted
-			if (isMuteMic()) {
-				Arrays.fill(lin, (short) 0);
-			}
-			 
-			if (isAudioPlay()) {
-				if(audioInfo.success) {
-					 
-					// Decode compressed MP3-File via native MPG123 library
-					err = NativeWrapper.decodeMP3(audioBuffer.length * 2, audioBuffer);
-					if (err == MPG123_OK || err == MPG123_NEW_FORMAT) {
-						
-						// use tan() of slider value as approximation because volume as perceived
-						// by humans (measured in decibels) is logarithmic, not linear
-						double gain = Math.tan(getRatio());
-						short val;
-						
-						for (int i = 0; i < audioBuffer.length; i++) {
-							val = (short) (audioBuffer[i] * gain + lin[pos+i]);
-							
-							// avoid clipping
-							if (val < -32768) {
-								val = -32768;
-							} else if (val > 32767) {
-								val = 32767;
-							}
-							lin[pos+i] = val;
-						}
-						
-					} else if (err == MPG123_DONE) {
-						stopAndCleanup();
-					}
-			 	}
+			 if (frame_size < 480) {
+				 now = System.currentTimeMillis();
+				 next_tx_delay = frame_period - (now - last_tx_time);
+				 last_tx_time = now;
+				 if (next_tx_delay > 0) {
+					 try {
+						 sleep(next_tx_delay);
+					 } catch (InterruptedException e1) {
+					 }
+					 last_tx_time += next_tx_delay-sync_adj;
+				 }
 			 }
-			 
+			 pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
+			 num = record.read(lin,pos,frame_size);
+			 if (num <= 0)
+				 continue;
+			 if (!p_type.codec.isValid())
+				 continue;
+
 			 if (RtpStreamReceiver.speakermode == AudioManager.MODE_NORMAL) {
  				 calc(lin,pos,num);
  	 			 if (RtpStreamReceiver.nearend != 0 && RtpStreamReceiver.down_time == 0)
@@ -571,16 +439,6 @@ public class RtpStreamSender extends Thread {
  				 calc10(lin,pos,num);
  				 break;
  			 }
-			 
-			 // if receiver is ready and checked wiretap
-			 if (wiretap && RtpStreamReceiver.getWiretap()) {
-				 short[] tempBuffer = new short[num];
-				 for (int i = 0; i < num; i++) {
-					 tempBuffer[i] = lin[pos+i];
-				 }
-				 RtpStreamReceiver.rb.enqueue(tempBuffer);
-			 }
-			 
 			 if (Receiver.call_state != UserAgent.UA_STATE_INCALL &&
 					 Receiver.call_state != UserAgent.UA_STATE_OUTGOING_CALL && alerting != null) {
 				 try {

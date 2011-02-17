@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
- 
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/top"
     android:layout_width="fill_parent"
@@ -24,7 +24,7 @@
     <!-- Number Display Field, padded for correct text alignment -->
     <EditText android:id="@+id/digits"
         android:layout_width="fill_parent"
-        android:layout_height="50px"
+        android:layout_height="66px"
         android:layout_marginTop="3px"
         android:layout_marginBottom="5px"
         android:layout_marginLeft="3px"

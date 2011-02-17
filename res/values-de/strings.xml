@@ -36,14 +36,12 @@
 \nSiehe http://sipdroid.org für weitere Infos
 \n
 \nVersion ${VERSION}
-\nmit Erweiterungen für den WDR.
 \nDas Programm befindet sich noch in der Testphase.
 \n
 \nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
-\nCopyright (C) 1995-2010 The mpg123 Project - (http://mpg123.org)
 \n
 \nDieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
 \n
@@ -225,19 +223,4 @@
 
 <string name="help_speakerphone">Sie können die Lautstärkeregler als Sprechtaste verwenden</string>
 
-<string name="menu_openFile">Datei wählen</string>
-<string name="menu_playFile">Play</string>
-<string name="browse_button">Datei wählen</string>
-<string name="play_button">Play</string>
-<string name="stop_button">Stop</string>
-<string name="only_mp3">es werden nur MP3 Dateien unterstützt</string>
-<string name="hideFileControls_button">zurück</string>
-<string name="showFileControls_button">Audiodatei Steuerung</string>
-<string name="label_audioFile">Audiodatei:</string>
-<string name="open_title">Audiodatei zum Öffnen auswählen</string>
-<string name="no_file_selected">bitte wählen sie eine Audiodatei</string>
-<string name="mute_mic">Mikrofon stumm</string>
-<string name="mixer">Lautstärke:</string>
-<string name="wiretap">&lt;- Abhören -&gt;</string>
-<string name="mute_wiretap">Abhören mischen</string>
 </resources>

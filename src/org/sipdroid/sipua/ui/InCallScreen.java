@@ -33,19 +33,23 @@ import org.sipdroid.sipua.phone.SlidingCardManager;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -53,13 +57,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class InCallScreen extends CallScreen implements View.OnClickListener, SensorEventListener {
 
+	protected static final int REQUEST_CODE_PICK_FILE_OR_DIRECTORY = 1;
 	final int MSG_ANSWER = 1;
 	final int MSG_ANSWER_SPEAKER = 2;
 	final int MSG_BACK = 3;
@@ -73,7 +84,21 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	SensorManager sensorManager;
     Sensor proximitySensor;
     boolean first;
-	
+
+    static Button playBtn;
+    static Button stopBtn;
+    private static boolean playing = false;
+    final int MSG_PLAY = 5;
+    final int MSG_STOP = 6;
+    
+	public static void setPlaying(boolean playing) {
+		InCallScreen.playing = playing;
+	}
+
+	public static boolean isPlaying() {
+		return playing;
+	}
+
 	void screenOff(boolean off) {
         ContentResolver cr = getContentResolver();
         
@@ -203,6 +228,11 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 							t = null;
 							break;
 						}
+						if (isPlaying()) {
+							mHandler.sendEmptyMessage(MSG_PLAY);
+						} else {
+							mHandler.sendEmptyMessage(MSG_STOP);
+						}
 						if (len != mDigits.getText().length()) {
 							time = SystemClock.elapsedRealtime();
 							if (tg != null) tg.startTone(mToneMap.get(mDigits.getText().charAt(len)));
@@ -234,6 +264,19 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     Handler mHandler = new Handler() {
     	public void handleMessage(Message msg) {
     		switch (msg.what) {
+    		
+    		case MSG_PLAY:
+    			if (stopBtn.getVisibility() != Button.VISIBLE) {
+    				showStopButton();
+    			}
+    			break;
+    		case MSG_STOP:
+    			if (playBtn.getVisibility() != Button.VISIBLE) {
+    				showPlayButton();
+//        			muteMic(false);
+    			}
+    			break;
+    		
     		case MSG_ANSWER:
         		if (Receiver.call_state == UserAgent.UA_STATE_INCOMING_CALL)
         			answer();
@@ -274,6 +317,8 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	public static SlidingCardManager mSlidingCardManager;
 	TextView mStats;
 	TextView mCodec;
+	
+	protected EditText mEditText;
 	
     public void initInCallScreen() {
         mInCallPanel = (ViewGroup) findViewById(R.id.inCallPanel);
@@ -336,6 +381,105 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
             button = findViewById(viewId);
             button.setOnClickListener(this);
         }
+        
+        mEditText = (EditText) findViewById(R.id.file_path);
+	    SeekBar volumeControl = (SeekBar) findViewById(R.id.mix_seek);
+	    SeekBar wiretap = (SeekBar) findViewById(R.id.wiretap_seek);
+	    CheckBox checkBoxMic = (CheckBox) findViewById(R.id.mute_mic);
+	    CheckBox checkBoxWiretap = (CheckBox) findViewById(R.id.mute_wiretap);
+		playBtn = (Button) findViewById(R.id.play_button);
+		stopBtn = (Button) findViewById(R.id.stop_button);
+        
+        Button btn = (Button) findViewById(R.id.browse_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				pickFile();
+			}
+	    });
+
+	    playBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				playMP3();
+			}
+	    });
+	    
+	    stopBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				stopMP3();
+			}
+	    });
+
+	    btn = (Button) findViewById(R.id.showFileControls_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				LinearLayout dialer = (LinearLayout) findViewById(R.id.dialer);
+				dialer.setVisibility(LinearLayout.INVISIBLE);
+				LinearLayout fileControls = (LinearLayout) findViewById(R.id.fileControls);
+				fileControls.setVisibility(LinearLayout.VISIBLE);
+			}
+	    });
+	    
+	    btn = (Button) findViewById(R.id.hideFileControls_button);
+	    btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				LinearLayout dialer = (LinearLayout) findViewById(R.id.dialer);
+				dialer.setVisibility(LinearLayout.VISIBLE);
+				LinearLayout fileControls = (LinearLayout) findViewById(R.id.fileControls);
+				fileControls.setVisibility(LinearLayout.INVISIBLE);
+			}
+	    });
+	    
+	    checkBoxMic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+	    	
+	    	@Override
+	    	public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+    			RtpStreamSender.setMuteMic(isChecked); 
+	    	}
+	    });
+	    
+	    volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+    	   @Override
+    	   public void onProgressChanged(SeekBar seekBar, int progress,
+    	     boolean fromUser) {
+    		   RtpStreamSender.setRatio((float) ((float) progress / 100));
+    	   }
+
+    	   @Override
+    	   public void onStartTrackingTouch(SeekBar volumeControl) {
+    	   }
+
+    	   @Override
+    	   public void onStopTrackingTouch(SeekBar volumeControl) {
+    	   }
+       });
+
+	    
+	    checkBoxWiretap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+	    	
+	    	@Override
+	    	public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+    			RtpStreamReceiver.setMuteWiretap(isChecked);
+	    	}
+	    });
+	    
+	    wiretap.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+    	   @Override
+    	   public void onProgressChanged(SeekBar seekBar, int progress,
+    	     boolean fromUser) {
+    		   RtpStreamReceiver.setRatio((float) ((float) progress / 100));
+    	   }
+
+    	   @Override
+    	   public void onStartTrackingTouch(SeekBar wiretap) {
+    	   }
+
+    	   @Override
+    	   public void onStopTrackingTouch(SeekBar wiretap) {
+    	   }
+       });
+	    
     }
     
 	Thread t;
@@ -509,4 +653,108 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         boolean active = (distance >= 0.0 && distance < PROXIMITY_THRESHOLD && distance < event.sensor.getMaximumRange());
         setScreenBacklight((float) (active?0.1:-1));
 	}
+	
+    
+    private void pickFile() {
+		 Intent intentBrowseFiles = new Intent(Intent.ACTION_GET_CONTENT);
+         intentBrowseFiles.setType("audio/mpeg");
+//         intentBrowseFiles.setType("audio/x-wav");
+         intentBrowseFiles.addCategory(Intent.CATEGORY_OPENABLE);
+         startActivityForResult(Intent.createChooser(intentBrowseFiles, getString(R.string.open_title)), REQUEST_CODE_PICK_FILE_OR_DIRECTORY);
+    }
+    
+	private void playMP3 () {
+	    String file = mEditText.getText().toString();
+	    if (!file.equals("")) {
+	    	RtpStreamSender.initFile(file);
+	    	String error = RtpStreamSender.getError(); 
+	    	if (error.equals("No error... (code 0)")) {
+	    		RtpStreamSender.setAudioPlay(true);
+		    	showStopButton();
+		    	setPlaying(true);
+			    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+				checkBox.setChecked(true);
+	    	} else {
+	    		Toast.makeText(this, RtpStreamSender.getError(), Toast.LENGTH_LONG).show();
+	    	}
+	    } else {
+	    	Toast.makeText(this, R.string.no_file_selected, Toast.LENGTH_SHORT).show();
+	    	pickFile();
+	    }
+	}
+	
+	private void stopMP3() {
+		setPlaying(false);
+		showPlayButton();
+//		muteMic(false);
+		RtpStreamSender.stopAndCleanup();
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (requestCode == REQUEST_CODE_PICK_FILE_OR_DIRECTORY) {
+			if (resultCode == RESULT_OK && data != null) {
+				
+				String selectedPath;
+			    String filename;
+			    
+				Uri selectedUri = data.getData();
+
+	            // external file manager (astro, andexplorer)
+                filename = selectedUri.getPath();
+
+                // media player
+                selectedPath = getPath(selectedUri);
+
+                if (selectedPath != null) {
+                	filename = selectedPath;
+                }
+				
+				if (filename != null) {
+					// Get rid of URI prefix:
+					if (filename.startsWith("file://")) {
+						filename = filename.substring(7);
+					}
+					if (filename.toLowerCase().endsWith(".mp3")) {
+						mEditText.setText(filename);
+					} else {
+						Toast.makeText(this, R.string.only_mp3, Toast.LENGTH_SHORT).show();
+					}
+				}				
+				
+			}
+		}
+	}
+	
+	public String getPath(Uri uri) {
+		String retval = null;
+        String[] projection = { 
+        		MediaStore.Images.Media.DATA
+        };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        if(cursor!=null) {
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            retval = cursor.getString(columnIndex);
+        }
+        return retval;
+    }
+	
+	public void showStopButton() {
+		stopBtn.setVisibility(Button.VISIBLE);
+		playBtn.setVisibility(Button.GONE);
+	}
+
+	public void showPlayButton() {
+  		playBtn.setVisibility(Button.VISIBLE);
+		stopBtn.setVisibility(Button.GONE);
+	}
+	
+	public void muteMic(boolean mute) {
+	    CheckBox checkBox = (CheckBox) findViewById(R.id.mute_mic);
+		checkBox.setChecked(mute);
+	}
+	
 }

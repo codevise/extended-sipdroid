@@ -52,7 +52,7 @@ public class Checkin {
 						}
 					}
 			        in.close();
-				} catch (Exception e) {
+				} catch (IOException e) {
 					if (!Sipdroid.release) e.printStackTrace();
 				}
 

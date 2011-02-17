@@ -23,16 +23,15 @@
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
  -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.sipdroid.sipua"
-    android:versionName="2.1 beta"
-    android:versionCode="81"
-    android:installLocation="auto">
+<manifest package="org.sipdroid.sipua"
+    android:versionName="2.0.1 beta"
+    android:versionCode="79"
+    android:installLocation="auto" xmlns:android="http://schemas.android.com/apk/res/android">
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4"/>
 	<supports-screens
           android:normalScreens="true"
           android:smallScreens="true"
-          android:largeScreens="true"
+          android:largeScreens="false"
           android:anyDensity="false" />
 	<uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
 	<uses-feature android:name="android.hardware.location" android:required="false"/>
@@ -103,9 +102,9 @@
 	        android:configChanges="orientation|keyboardHidden">
         </activity>
         <activity android:name=".ui.InCallScreen" android:label="@string/app_name"
-	        android:excludeFromRecents="true" android:taskAffinity=""
-	        android:launchMode="singleInstance">
+	        android:excludeFromRecents="true" android:taskAffinity="" android:launchMode="singleTask">
         </activity>
+        
 	    <receiver android:name=".ui.OneShotAlarm"/>
 	    <receiver android:name=".ui.OneShotAlarm2"/>
 	    <receiver android:name=".ui.LoopAlarm"/>

@@ -13,28 +13,72 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout 
     android:id="@+id/top"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent" 
     android:layout_marginTop="1dip"
-    android:background="@color/dtmf_dialer_background">
-    
-    <!-- TODO: Need new layout, restore [android:layout_height="155dip"] -->
-    <!-- Include the layout for the dtmf display -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/dtmf_dialer_background"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<LinearLayout
+	    android:id="@+id/dialer"
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:orientation="vertical"
+	    android:layout_marginTop="1dip"
+	    android:background="@color/dtmf_dialer_background">
+	
+	    <!-- TODO: Need new layout, restore [android:layout_height="155dip"] -->
+	    <!-- Include the layout for the dtmf display -->
+	    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_marginTop="10dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="0dip">
+	        
+		    <Button
+	            android:id="@+id/showFileControls_button"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_width="fill_parent"
+	            android:layout_height="60dp"
+	            android:background="@drawable/btn"
+                android:textColor="#FFFFFF"
+	            android:text="@string/showFileControls_button">
+	        </Button>
+	        
+<!-- 	        <include layout="@layout/file_controls" /> -->
+	        
+	    </LinearLayout>
+	        
+	    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="0dip">
+	        
+	        <include layout="@layout/dtmf_display"/>
+	        
+	    </LinearLayout>
+	    
+	    <!-- Keypad section -->
+	    <include layout="@layout/dialpad" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+	    android:id="@+id/fileControls"
+	    android:visibility="invisible"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="76dip"
-        android:layout_marginBottom="0dip">
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="1dip"
+        android:background="@color/dtmf_dialer_background">
         
-        <include layout="@layout/dtmf_display"/>
+        <include layout="@layout/file_controls" />
         
     </LinearLayout>
-    
-    <!-- Keypad section -->
-    <include layout="@layout/dialpad" />
-    
-</LinearLayout>
+	
+</FrameLayout>

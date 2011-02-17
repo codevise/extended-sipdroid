@@ -72,8 +72,7 @@ public interface Codec {
 	 * encoding or decoding
 	 */
 	void init();
-	void update();
-	
+
 	/**
 	 * Optionally used to free any resources allocated in init
 	 * after encoding or decoding is complete

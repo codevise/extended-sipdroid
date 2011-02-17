@@ -199,7 +199,7 @@ import org.zoolu.sip.provider.SipProvider;
 									Settings.System.DEFAULT_RINGTONE_URI.toString());
 							if(!TextUtils.isEmpty(sUriSipRingtone)) {
 								oRingtone = RingtoneManager.getRingtone(mContext, Uri.parse(sUriSipRingtone));
-								if (oRingtone != null) oRingtone.play();	
+								oRingtone.play();	
 							}
 						}
 					}
@@ -217,7 +217,7 @@ import org.zoolu.sip.provider.SipProvider;
 					RtpStreamReceiver.speakermode = speakermode();
 					bluetooth = -1;
 					onText(MISSED_CALL_NOTIFICATION, null, 0,0);
-					engine(mContext).registerUdp();
+					engine(mContext).register();
 					broadcastCallStateChanged("OFFHOOK", caller);
 					ccCall.setState(Call.State.DIALING);
 					ccConn.setUserData(null);
@@ -257,7 +257,7 @@ import org.zoolu.sip.provider.SipProvider;
 				case UserAgent.UA_STATE_HOLD:
 					onText(CALL_NOTIFICATION, mContext.getString(R.string.card_title_on_hold), android.R.drawable.stat_sys_phone_call_on_hold,ccCall.base);
 					ccCall.setState(Call.State.HOLDING);
-			        if (InCallScreen.started) mContext.startActivity(createIntent(InCallScreen.class));
+			        mContext.startActivity(createIntent(InCallScreen.class));
 					break;
 				}
 				pos(true);
@@ -335,7 +335,7 @@ import org.zoolu.sip.provider.SipProvider;
 						if (mSipdroidEngine != null)
 							contentView.setTextViewText(R.id.text1,
 								mSipdroidEngine.user_profiles[type-REGISTER_NOTIFICATION].username+"@"+
-								mSipdroidEngine.user_profiles[type-REGISTER_NOTIFICATION].realm_orig);
+								mSipdroidEngine.user_profiles[type-REGISTER_NOTIFICATION].realm);
 	        		} else
 						contentView.setTextViewText(R.id.text1, text);
 					notification.contentView = contentView;

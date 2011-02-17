@@ -42,12 +42,10 @@ class CodecBase implements Preference.OnPreferenceChangeListener {
 	private boolean wlanOnly = false,wlanOr3GOnly = false;
 	private String value;
 
-	public void update() {
-		if (Receiver.mContext != null) {
-			SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
-			value = sp.getString(key(), CODEC_DEFAULT_SETTING);
-			updateFlags(value);		
-		}
+	void update() {
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
+		value = sp.getString(key(), CODEC_DEFAULT_SETTING);
+		updateFlags(value);		
 	}
 	
 	public String getValue() {

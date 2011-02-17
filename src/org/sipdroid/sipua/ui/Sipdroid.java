@@ -38,7 +38,6 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -92,35 +91,30 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	    sip_uri_box2.setAdapter(adapter);
 	}
 	
-	public static class CallsCursor extends CursorWrapper {
-		List<String> list;
+	public static class CallsAdapter extends CursorAdapter implements Filterable {
+		List<String> list = null;
 		
 		public int getCount() {
+			if (list == null)
+				return 0;
 			return list.size();
 		}
 		
-		public String getString(int i) {
-			return list.get(getPosition());
-		}
-		
-		public CallsCursor(Cursor cursor) {
-			super(cursor);
+		Cursor uniq(Cursor cursor) {
 			list = new ArrayList<String>();
 			for (int i = 0; i < cursor.getCount(); i++) {
-				moveToPosition(i);
- 		        String phoneNumber = super.getString(1);
-		        String cachedName = super.getString(2);
+				cursor.moveToPosition(i);
+ 		        String phoneNumber = cursor.getString(1);
+		        String cachedName = cursor.getString(2);
 		        if (cachedName != null && cachedName.trim().length() > 0)
 		        	phoneNumber += " <" + cachedName + ">";
 		        if (list.contains(phoneNumber)) continue;
 				list.add(phoneNumber);
 			}
-			moveToFirst();
+			cursor.moveToFirst();
+			return cursor;
 		}
 		
-	}
-	
-	public static class CallsAdapter extends CursorAdapter implements Filterable {
 	    public CallsAdapter(Context context, Cursor c) {
 	        super(context, c);
 	        mContent = context.getContentResolver();
@@ -130,20 +124,20 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	        final LayoutInflater inflater = LayoutInflater.from(context);
 	        final TextView view = (TextView) inflater.inflate(
 	                android.R.layout.simple_dropdown_item_1line, parent, false);
-	    	String phoneNumber = cursor.getString(1); 
+	    	String phoneNumber = list.get(cursor.getPosition());	        
 	        view.setText(phoneNumber);
 	        return view;
 	    }
 	
 	    @Override
 	    public void bindView(View view, Context context, Cursor cursor) {
-	    	String phoneNumber = cursor.getString(1);
+	    	String phoneNumber = list.get(cursor.getPosition());	        
 	        ((TextView) view).setText(phoneNumber);
 	    }
 	
 	    @Override
 	    public String convertToString(Cursor cursor) {
-	    	String phoneNumber = cursor.getString(1);
+	    	String phoneNumber = list.get(cursor.getPosition());
 	    	if (phoneNumber.contains(" <"))
 	    		phoneNumber = phoneNumber.substring(0,phoneNumber.indexOf(" <"));
 	        return phoneNumber;
@@ -152,7 +146,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	    @Override
 	    public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 	        if (getFilterQueryProvider() != null) {
-	            return new CallsCursor(getFilterQueryProvider().runQuery(constraint));
+	            return uniq(getFilterQueryProvider().runQuery(constraint));
 	        }
 	
 	        StringBuilder buffer;
@@ -166,7 +160,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
        				constraint.toString() : "@") + "%";
 	        args = new String[] { arg, arg};
 	
-	        return new CallsCursor(mContent.query(Calls.CONTENT_URI, PROJECTION,
+	        return uniq(mContent.query(Calls.CONTENT_URI, PROJECTION,
 	                buffer.toString(), args,
 	                Calls.NUMBER + " asc"));
 	    }

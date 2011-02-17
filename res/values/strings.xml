@@ -36,20 +36,21 @@
 \nSee http://sipdroid.org for more info
 \n
 \nVersion ${VERSION}
+\nextended for the WDR.
 \nThe software has been released for testing.
 \n
 \nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
+\nCopyright (C) 1995-2010 The mpg123 Project - (http://mpg123.org)
 \n
 \nThis program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 \n
 \nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details (http://www.gnu.org/licenses).</string>
 
 <string name="reg">Registering...</string>
-<string name="regpref">Preferred</string>
-<string name="regclick">Click to select</string>
+<string name="regok">Registered</string>
 <string name="regfailed">Registration failed</string>
 
 <string name="voicemail">Message(s) Waiting</string>
@@ -302,4 +303,23 @@
 <string name="help_speakerphone">Press and hold volume buttons to force talk</string>
 <string name="menu_create">New PBX linked to my Google Voice</string>
 
+
+
+<string name="browse_button">select file</string>
+<string name="play_button">play</string>
+<string name="open_title">choose file to open</string>
+<string name="open_button">okay</string>
+<string name="no_filemanager_installed">No file manager found. Install e. g. &quot;OI File Manager&quot; from Market.</string>
+<string name="stop_button">stop</string>
+<string name="only_mp3">only MP3 files supported </string>
+<string name="showFileControls_button">file controls</string>
+<string name="hideFileControls_button">back</string>
+<string name="mixer">volume control</string>
+<string name="label_audioFile">Audio File:</string>
+<string name="no_file_selected">please select a file first</string>
+<string name="mute_mic">mute microphone</string>
+<string name="wiretap">&lt;- wiretap -&gt;</string>
+<string name="mute_wiretap">mix wiretap</string>
+<string name="wiretap_rx">Rx</string>
+<string name="wiretap_tx">Tx</string>
 </resources>

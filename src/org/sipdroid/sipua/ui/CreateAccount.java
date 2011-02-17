@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
-import java.util.Random;
 
 import org.sipdroid.sipua.R;
 import org.sipdroid.sipua.SipdroidEngine;
@@ -98,28 +97,6 @@ public class CreateAccount extends Dialog {
     	}
     };
 
-    String generatePassword(int length)
-	{
-	    String availableCharacters = "";
-	    String password = "";
-	    
-	    // Generate the appropriate character set
-	    availableCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	    availableCharacters = availableCharacters + "0123456789";
-	    
-	    // Generate the random number generator
-	    Random selector = new Random();
-	    
-	    // Generate the password
-	    int i;
-	    for(i = 0; i < length; i++)
-	    {
-	            password = password + availableCharacters.charAt(selector.nextInt(availableCharacters.length() - 1));
-	    }
-	    
-	    return password;
-	}
-
 	void CreateAccountNow() {
 		buttonCancel.setEnabled(false);
 		buttonOK.setEnabled(false);
@@ -127,12 +104,10 @@ public class CreateAccount extends Dialog {
 		Toast.makeText(mContext, "Please stand by while your account is being created", Toast.LENGTH_LONG).show();
         (new Thread() {
 			public void run() {
-				line = "Can't connect to webserver";
 				try {
-					String password = generatePassword(8);
 			        URL url = new URL("https://www1.pbxes.com/config.php?m=register&a=update&f=action&username="+Uri.encode(etName.getText().toString())+"&password="
 			        		+Uri.encode(etPass.getText().toString())+"&password_confirm="+Uri.encode(etConfirm.getText().toString())+"&language=en&email="+Uri.encode(email)+"&land="+Uri.encode(Time.getCurrentTimezone())+
-			        		"&sipdroid="+Uri.encode(password));
+			        		"&sipdroid="+Uri.encode(etSipdroid.getText().toString()));
 			        BufferedReader in;
 					in = new BufferedReader(new InputStreamReader(url.openStream()));
 					line = in.readLine();
@@ -149,7 +124,7 @@ public class CreateAccount extends Dialog {
 							edit.putString(Settings.PREF_FROMUSER, Settings.DEFAULT_FROMUSER);
 							edit.putString(Settings.PREF_PORT, Settings.DEFAULT_PORT);
 							edit.putString(Settings.PREF_PROTOCOL, "tcp");
-							edit.putString(Settings.PREF_PASSWORD, password);
+							edit.putString(Settings.PREF_PASSWORD, etSipdroid.getText().toString());
 							edit.commit();
 				        	Receiver.engine(mContext).updateDNS();
 				       		Receiver.engine(mContext).halt();
@@ -166,7 +141,7 @@ public class CreateAccount extends Dialog {
 		}).start();   
 	}
 
-	EditText etName,etPass,etConfirm;
+	EditText etName,etPass,etConfirm,etSipdroid;
 	TextView tAdd;
 	Button buttonCancel,buttonOK;
 	
@@ -193,6 +168,7 @@ public class CreateAccount extends Dialog {
         tAdd.setText(email);
         etPass = (EditText) findViewById(R.id.EditText02);
         etConfirm = (EditText) findViewById(R.id.EditText03);
+        etSipdroid = (EditText) findViewById(R.id.EditText04);
     }
 
 }
